@@ -35,15 +35,16 @@ COTDGoogle* COTDGoogle::sharedInstance()
 #define URLFORMAT "https://www.googleapis.com/customsearch/v1?key=AIzaSyDhZSxw5rAjmGLHGBJH5ouHDWnMg42LW4g&cx=003054679763599795063:tka3twkxrbw&searchType=image&fields=items(link,title,image/thumbnailLink)&start=%d&num=1&q=capybara"
 //#define URLFORMAT "https://www.googleapis.com/customsearch/v1?key=AIzaSyDipywri5f6D__qqcCgvbBzP9uF5xbP9b0&cx=003054679763599795063:tka3twkxrbw&searchType=image&fields=items(link,title,image/thumbnailLink)&start=%d&num=1&q=capybara"
 
-
-void COTDGoogle::onHttpRequestCompleted(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
+bool COTDGoogle::parseResponse(cocos2d::network::HttpResponse *response,
+                               std::string& link,
+                               std::string& thumbnailLink,
+                               std::string& title,
+                               std::string& error)
 {
-    this->succeeded = false;
-
     if (!response)
     {
-        this->error = "no response";
-        return;
+        error = "no response";
+        return false;
     }
     // You can get original request type from: response->request->reqType
     if (0 != strlen(response->getHttpRequest()->getTag()))
@@ -57,13 +58,13 @@ void COTDGoogle::onHttpRequestCompleted(cocos2d::network::HttpClient *sender, co
     dbg << "statusString: " << statusString << endl;
     
     dbg << "response code:" << statusCode << endl;
-
+    
     if (!response->isSucceed())
     {
         err << "response failed" << endl;
         err << "error buffer:" << response->getErrorBuffer() << endl;
-        this->error = response->getErrorBuffer();
-        return;
+        error = response->getErrorBuffer();
+        return false;
     }
     
     std::vector<char> *buffer = response->getResponseData();
@@ -80,54 +81,71 @@ void COTDGoogle::onHttpRequestCompleted(cocos2d::network::HttpClient *sender, co
     json.ParseStream<0>(stream);
     if (json.HasParseError()) {
         err << "GetParseError " << json.GetParseError() << endl;
-        this->error = json.GetParseError();
-        return;
+        error = json.GetParseError();
+        return false;
     }
-
+    
     if (!DICTOOL->checkObjectExist_json(json, P_Items))
     {
-        this->error = "not exist ";
-        this->error += P_Items;
-        return;
+        error = "not exist ";
+        error += P_Items;
+        return false;
     }
     
     if (!DICTOOL->getArrayCount_json(json, P_Items))
     {
-        this->error = "empty ";
-        this->error += P_Items;
-        return;
+        error = "empty ";
+        error += P_Items;
+        return false;
     }
     
     const rapidjson::Value &itemDic = DICTOOL->getDictionaryFromArray_json(json, P_Items, 0);
     
-    this->title = DICTOOL->getStringValue_json(itemDic, P_Title);
-    if (!this->title.length())
+    title = DICTOOL->getStringValue_json(itemDic, P_Title);
+    if (!title.length())
     {
-        this->error = "empty ";
-        this->error += P_Title;
-        return;
+        error = "empty ";
+        error += P_Title;
+        return false;
     }
-    this->link = DICTOOL->getStringValue_json(itemDic, P_Link);
-    if (!this->link.length())
+    link = DICTOOL->getStringValue_json(itemDic, P_Link);
+    if (!link.length())
     {
-        this->error = "empty ";
-        this->error += P_Link;
-        return;
+        error = "empty ";
+        error += P_Link;
+        return false;
     }
     const rapidjson::Value& image = DICTOOL->getSubDictionary_json(itemDic, P_Image);
-    this->thumbnailLink = DICTOOL->getStringValue_json(image, P_ThumbnailLink);
-    if (!this->thumbnailLink.length())
+    thumbnailLink = DICTOOL->getStringValue_json(image, P_ThumbnailLink);
+    if (!thumbnailLink.length())
     {
-        this->error = "empty ";
-        this->error += P_ThumbnailLink;
-        return;
+        error = "empty ";
+        error += P_ThumbnailLink;
+        return false;
     }
     
-    dbg << "title: [" << this->title << "] - "
-        << "link: [" << this->link << "] - "
-        << "thumbnailLink: [" << this->thumbnailLink << "]" << endl;
+    dbg << "title: [" << title << "] - "
+    << "link: [" << link << "] - "
+    << "thumbnailLink: [" << thumbnailLink << "]" << endl;
+    
+    return true;
+}
 
-    this->succeeded = true;
+void COTDGoogle::onHttpRequestCompleted(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
+{
+    bool succeeded = false;
+    std::string link;
+    std::string thumbnailLink;
+    std::string title;
+    std::string error;
+    
+    if (this->callback)
+    {
+        succeeded = this->parseResponse(response, link, thumbnailLink, title, error);
+
+        this->callback(succeeded, link, thumbnailLink, title, error);
+    }
+
 }
 
 
@@ -139,9 +157,12 @@ COTDGoogle::COTDGoogle()
 
 
 
-void COTDGoogle::queryTerm(const std::string& term, const int& start)
+void COTDGoogle::queryTerm(const std::string& term, const int& start, const ccGoogleCallback& callback)
 {
     dbg << endl;
+    
+    this->callback = callback;
+    
     char aux[1000];
     sprintf(aux, URLFORMAT, 1);
     

@@ -10,6 +10,7 @@
 #define __COTDGOOGLE_H__
 
 #include "network/HttpClient.h"
+typedef std::function<void(bool, const std::string &, const std::string&, const std::string&, const std::string&)> ccGoogleCallback;
 
 class COTDGoogle
 {
@@ -22,19 +23,21 @@ class COTDGoogle
 public:
     static COTDGoogle* sharedInstance();
 
-    void queryTerm(const std::string& term, const int& start);
+    void queryTerm(const std::string& term, const int& start, const ccGoogleCallback& callback);
+
+    bool parseResponse(cocos2d::network::HttpResponse *response,
+                       std::string& link,
+                       std::string& thumbnailLink,
+                       std::string& title,
+                       std::string& error);
 
     void onHttpRequestCompleted(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
+
+    ccGoogleCallback callback;
 
 protected:
     COTDGoogle();
     
-    bool succeeded;
-    std::string link;
-    std::string thumbnailLink;
-    std::string title;
-    std::string error;
-
 private:
     static COTDGoogle* _instance;
 };

@@ -33,8 +33,7 @@ bool COTDMain::init()
     }
     
     dbg << endl;
-    std::string term;
-    COTDGoogle::sharedInstance()->queryTerm(term, 1);
+    COTDMain::searchGoogle();
 
     COTDMain::configureMenu();
     
@@ -42,9 +41,7 @@ bool COTDMain::init()
     
     COTDMain::configureTitle();
     
-    COTDMain::configureImage();
-    
-    COTDMain::configureMenu();
+    COTDMain::configureImage("capybara.jpg");
     
     return true;
 }
@@ -129,13 +126,13 @@ void COTDMain::configureTitle()
     this->addChild(label, 1);
 }
 
-void COTDMain::configureImage()
+void COTDMain::configureImage(const char *imageName)
 {
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
     // add "COTDMain" splash screen"
-    auto sprite = Sprite::create("capybara.jpg");
+    auto sprite = Sprite::create();
     
     // position the sprite on the center of the screen
     sprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
@@ -154,9 +151,39 @@ void COTDMain::configureMenu()
     this->addChild(menu, 1);
 }
 
+
+void COTDMain::searchGoogle()
+{
+    std::string term;
+//    COTDGoogle::sharedInstance()->queryTerm(term, 1, CC_CALLBACK_1(COTDMain::googleSearchCallback, this));
+    COTDGoogle::sharedInstance()->queryTerm(term, 1, std::bind(&COTDMain::googleSearchCallback,
+                                                               this,
+                                                               std::placeholders::_1,
+                                                               std::placeholders::_2,
+                                                               std::placeholders::_3,
+                                                               std::placeholders::_4,
+                                                               std::placeholders::_5));
+    /*
+     std::string& link,
+     std::string& thumbnailLink,
+     std::string& title,
+     std::string& error);
+
+     typedef std::function<void(bool, const std::string &, const std::string&, const std::string&, const std::string&)> ccGoogleCallback;
+     this->callback(succeeded, link, thumbnailLink, title, error);
+
+     _downloader->_onProgress = std::bind(&AssetsManagerEx::onProgress,
+     this,
+     std::placeholders::_1,
+     std::placeholders::_2,
+     std::placeholders::_3,
+     std::placeholders::_4);
+*/
+    //std::bind(&__selector__,__target__, std::placeholders::_1, ##__VA_ARGS__)
+}
+
 void COTDMain::menuLikeCallback(Ref* pSender)
 {
-
 }
 
 void COTDMain::menuGridCallback(Ref* pSender)
@@ -174,3 +201,14 @@ void COTDMain::menuCloseCallback(Ref* pSender)
     exit(0);
 #endif
 }
+
+void COTDMain::googleSearchCallback(bool succeeded,
+                                    const std::string& link,
+                                    const std::string& thumbnailLink,
+                                    const std::string& title,
+                                    const std::string& error)
+{
+    dbg << endl;
+    
+}
+

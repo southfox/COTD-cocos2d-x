@@ -13,13 +13,19 @@ private:
     MenuItemLabel* createLikeButton();
     MenuItemLabel* createGridButton();
     void configureTitle();
-    void configureImage();
+    void configureImage(const char *imageName);
     void configureMenu();
+    void searchGoogle();
     
     // a selector callback
     void menuLikeCallback(cocos2d::Ref* pSender);
     void menuGridCallback(cocos2d::Ref* pSender);
     void menuCloseCallback(cocos2d::Ref* pSender);
+    void googleSearchCallback(bool succeeded,
+                              const std::string& link,
+                              const std::string& thumbnailLink,
+                              const std::string& title,
+                              const std::string& error);
 
 public:
     // there's no 'id' in cpp, so we recommend returning the class instance pointer
