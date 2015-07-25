@@ -3,6 +3,8 @@ USING_NS_CC;
 #include "COTDMainScene.h"
 #include "COTDGridScene.h"
 #include "COTDDate.h"
+#include "COTDLog.h"
+#include "COTDGoogle.h"
 
 
 Scene* COTDMain::createScene()
@@ -30,6 +32,10 @@ bool COTDMain::init()
         return false;
     }
     
+    dbg << endl;
+    std::string term;
+    COTDGoogle::sharedInstance()->queryTerm(term, 1);
+
     COTDMain::configureMenu();
     
     COTDMain::createCloseButton();
