@@ -1,11 +1,11 @@
-#ifndef __HELLOWORLD_SCENE_H__
-#define __HELLOWORLD_SCENE_H__
+#ifndef __COTDMAIN_SCENE_H__
+#define __COTDMAIN_SCENE_H__
 
 #include "cocos2d.h"
 
 using namespace cocos2d;
 
-class HelloWorld : public cocos2d::Layer
+class COTDMain : public cocos2d::Layer
 {
 
 private:
@@ -29,8 +29,8 @@ public:
     virtual bool init();
     
     // implement the "static create()" method manually
-    CREATE_FUNC(HelloWorld);
+    CREATE_FUNC(COTDMain);
     
 };
 
-#endif // __HELLOWORLD_SCENE_H__
+#endif // __COTDMAIN_SCENE_H__

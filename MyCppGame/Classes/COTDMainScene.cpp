@@ -1,14 +1,15 @@
 USING_NS_CC;
 
-#include "HelloWorldScene.h"
+#include "COTDMainScene.h"
+#include "COTDGridScene.h"
 
-Scene* HelloWorld::createScene()
+Scene* COTDMain::createScene()
 {
     // 'scene' is an autorelease object
     auto scene = Scene::create();
     
     // 'layer' is an autorelease object
-    auto layer = HelloWorld::create();
+    auto layer = COTDMain::create();
 
     // add layer as a child to scene
     scene->addChild(layer);
@@ -18,7 +19,7 @@ Scene* HelloWorld::createScene()
 }
 
 // on "init" you need to initialize your instance
-bool HelloWorld::init()
+bool COTDMain::init()
 {
     //////////////////////////////
     // 1. super init first
@@ -27,21 +28,21 @@ bool HelloWorld::init()
         return false;
     }
     
-    HelloWorld::configureMenu();
+    COTDMain::configureMenu();
     
-    HelloWorld::createCloseButton();
+    COTDMain::createCloseButton();
     
-    HelloWorld::configureTitle();
+    COTDMain::configureTitle();
     
-    HelloWorld::configureImage();
+    COTDMain::configureImage();
     
-    HelloWorld::configureMenu();
+    COTDMain::configureMenu();
     
     return true;
 }
 
 
-MenuItemImage* HelloWorld::createCloseButton()
+MenuItemImage* COTDMain::createCloseButton()
 {
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
@@ -54,7 +55,7 @@ MenuItemImage* HelloWorld::createCloseButton()
     auto closeItem = MenuItemImage::create(
                                            "CloseNormal.png",
                                            "CloseSelected.png",
-                                           CC_CALLBACK_1(HelloWorld::menuCloseCallback, this));
+                                           CC_CALLBACK_1(COTDMain::menuCloseCallback, this));
     
     closeItem->setPosition(Vec2(origin.x + visibleSize.width - closeItem->getContentSize().width/2 ,
                                 origin.y + closeItem->getContentSize().height/2));
@@ -63,14 +64,14 @@ MenuItemImage* HelloWorld::createCloseButton()
     
 }
 
-MenuItemLabel* HelloWorld::createLikeButton()
+MenuItemLabel* COTDMain::createLikeButton()
 {
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
     auto like = Label::createWithTTF("[ like ]", "fonts/arial.ttf", 30);
 
-    auto likeButton = MenuItemLabel::create(like, CC_CALLBACK_1(HelloWorld::menuLikeCallback, this));
+    auto likeButton = MenuItemLabel::create(like, CC_CALLBACK_1(COTDMain::menuLikeCallback, this));
     
     likeButton->setPosition(Vec2(origin.x + visibleSize.width - like->getContentSize().width,
                                  origin.y + visibleSize.height - like->getContentSize().height));
@@ -79,14 +80,14 @@ MenuItemLabel* HelloWorld::createLikeButton()
 
 }
 
-MenuItemLabel* HelloWorld::createGridButton()
+MenuItemLabel* COTDMain::createGridButton()
 {
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
     auto grid = Label::createWithTTF("[ grid ]", "fonts/arial.ttf", 30);
     
-    auto button = MenuItemLabel::create(grid, CC_CALLBACK_1(HelloWorld::menuGridCallback, this));
+    auto button = MenuItemLabel::create(grid, CC_CALLBACK_1(COTDMain::menuGridCallback, this));
     
     button->setPosition(Vec2(origin.x + grid->getContentSize().width,
                            origin.y + visibleSize.height - grid->getContentSize().height));
@@ -94,7 +95,7 @@ MenuItemLabel* HelloWorld::createGridButton()
     return button;
 }
 
-void HelloWorld::configureTitle()
+void COTDMain::configureTitle()
 {
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
@@ -115,12 +116,12 @@ void HelloWorld::configureTitle()
     this->addChild(label, 1);
 }
 
-void HelloWorld::configureImage()
+void COTDMain::configureImage()
 {
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-    // add "HelloWorld" splash screen"
+    // add "COTDMain" splash screen"
     auto sprite = Sprite::create("capybara.jpg");
     
     // position the sprite on the center of the screen
@@ -130,26 +131,29 @@ void HelloWorld::configureImage()
     this->addChild(sprite, 0);
 }
 
-void HelloWorld::configureMenu()
+void COTDMain::configureMenu()
 {
     // create menu, it's an autorelease object
-    auto menu = Menu::create(HelloWorld::createCloseButton(),
-                             HelloWorld::createLikeButton(),
-                             HelloWorld::createGridButton(), NULL);
+    auto menu = Menu::create(COTDMain::createCloseButton(),
+                             COTDMain::createLikeButton(),
+                             COTDMain::createGridButton(), NULL);
     menu->setPosition(Vec2::ZERO);
     this->addChild(menu, 1);
 }
 
-void HelloWorld::menuLikeCallback(Ref* pSender)
+void COTDMain::menuLikeCallback(Ref* pSender)
 {
 
 }
 
-void HelloWorld::menuGridCallback(Ref* pSender)
+void COTDMain::menuGridCallback(Ref* pSender)
 {
+    auto scene = COTDGrid::createScene();
+    auto director = Director::getInstance();
+    director->pushScene(scene);
 }
 
-void HelloWorld::menuCloseCallback(Ref* pSender)
+void COTDMain::menuCloseCallback(Ref* pSender)
 {
     Director::getInstance()->end();
 
