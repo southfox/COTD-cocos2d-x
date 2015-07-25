@@ -2,6 +2,8 @@ USING_NS_CC;
 
 #include "COTDMainScene.h"
 #include "COTDGridScene.h"
+#include "COTDDate.h"
+
 
 Scene* COTDMain::createScene()
 {
@@ -106,7 +108,12 @@ void COTDMain::configureTitle()
     // add a label shows "Hello World"
     // create and initialize a label
     
-    auto label = Label::createWithTTF("Capybara of the day", "fonts/Marker Felt.ttf", 50);
+    std::string title = "Capybara of the day: ";
+    COTDDate *date = new COTDDate();
+    
+    title += date->D2Str();
+    
+    auto label = Label::createWithTTF(title, "fonts/Marker Felt.ttf", 50);
     
     // position the label on the center of the screen
     label->setPosition(Vec2(origin.x + visibleSize.width/2,
