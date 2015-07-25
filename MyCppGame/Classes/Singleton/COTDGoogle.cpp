@@ -7,7 +7,7 @@
 //
 
 #include "COTDGoogle.h"
-
+#include "COTDLog.h"
 
 COTDGoogle* COTDGoogle::_instance = 0;
 
@@ -22,6 +22,7 @@ COTDGoogle* COTDGoogle::sharedInstance()
 
 COTDGoogle::COTDGoogle()
 {
+    dbg << endl;
 }
 
 
@@ -32,7 +33,8 @@ COTDGoogle::COTDGoogle()
 //#define URLFORMAT @"https://www.googleapis.com/customsearch/v1?key=AIzaSyDipywri5f6D__qqcCgvbBzP9uF5xbP9b0&cx=003054679763599795063:tka3twkxrbw&searchType=image&fields=items(link,title,image/thumbnailLink)&start=%d&num=1&q=capybara"
 
 
-void COTDGoogle::queryTerm(const std::string& term, const int start, bool& succeeded, std::string &link, std::string &thumbnailLink, std::string &title, std::string error)
+void COTDGoogle::queryTerm(const std::string term, const int start, bool& succeeded, std::string &link, std::string &thumbnailLink, std::string &title, std::string error)
 {
+    dbg << endl;
 }
 

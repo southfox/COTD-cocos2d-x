@@ -1,13 +1,23 @@
 #include "AppDelegate.h"
 #include "COTDMainScene.h"
+#include "COTDGoogle.h"
+#define S_LOG
+#include "COTDLog.h"
 
 USING_NS_CC;
 
 AppDelegate::AppDelegate() {
-
+    dbg << endl;
+    bool succeded = false;
+    std::string term;
+    std::string link;
+    std::string thumbnailLink;
+    std::string title;
+    std::string error;
+    COTDGoogle::sharedInstance()->queryTerm(term, 1, succeded, link, thumbnailLink, title, error);
 }
 
-AppDelegate::~AppDelegate() 
+AppDelegate::~AppDelegate()
 {
 }
 

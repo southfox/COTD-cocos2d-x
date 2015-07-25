@@ -14,7 +14,7 @@ class COTDGoogle
 public:
     static COTDGoogle* sharedInstance();
 
-    void queryTerm(const std::string& term, const int start, bool& succeeded, std::string &link, std::string &thumbnailLink, std::string &title, std::string error);
+    void queryTerm(const std::string term, const int start, bool& succeeded, std::string &link, std::string &thumbnailLink, std::string &title, std::string error);
 
 protected: 
     COTDGoogle();
