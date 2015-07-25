@@ -5,7 +5,7 @@ USING_NS_CC;
 #include "COTDDate.h"
 #include "COTDLog.h"
 #include "COTDGoogle.h"
-
+#include <assets-manager/Downloader.h>
 
 Scene* COTDMain::createScene()
 {
@@ -132,7 +132,7 @@ void COTDMain::configureImage(const char *imageName)
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
     // add "COTDMain" splash screen"
-    auto sprite = Sprite::create();
+    auto sprite = Sprite::create(imageName);
     
     // position the sprite on the center of the screen
     sprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
@@ -155,7 +155,6 @@ void COTDMain::configureMenu()
 void COTDMain::searchGoogle()
 {
     std::string term;
-//    COTDGoogle::sharedInstance()->queryTerm(term, 1, CC_CALLBACK_1(COTDMain::googleSearchCallback, this));
     COTDGoogle::sharedInstance()->queryTerm(term, 1, std::bind(&COTDMain::googleSearchCallback,
                                                                this,
                                                                std::placeholders::_1,
@@ -163,23 +162,6 @@ void COTDMain::searchGoogle()
                                                                std::placeholders::_3,
                                                                std::placeholders::_4,
                                                                std::placeholders::_5));
-    /*
-     std::string& link,
-     std::string& thumbnailLink,
-     std::string& title,
-     std::string& error);
-
-     typedef std::function<void(bool, const std::string &, const std::string&, const std::string&, const std::string&)> ccGoogleCallback;
-     this->callback(succeeded, link, thumbnailLink, title, error);
-
-     _downloader->_onProgress = std::bind(&AssetsManagerEx::onProgress,
-     this,
-     std::placeholders::_1,
-     std::placeholders::_2,
-     std::placeholders::_3,
-     std::placeholders::_4);
-*/
-    //std::bind(&__selector__,__target__, std::placeholders::_1, ##__VA_ARGS__)
 }
 
 void COTDMain::menuLikeCallback(Ref* pSender)
@@ -202,6 +184,24 @@ void COTDMain::menuCloseCallback(Ref* pSender)
 #endif
 }
 
+void COTDMain::onError(const cocos2d::extension::Downloader::Error &error)
+{
+    dbg << "error -> code:" << (int)error.code << ", message: " << error.message << endl;
+}
+
+void COTDMain::onProgress(double total, double downloaded, const std::string &url, const std::string &customId)
+{
+    dbg << "onProgress -> total " << total << ", downloaded: " << downloaded << ", url: " << url << ", customId: " << customId << endl;
+}
+
+void COTDMain::onSuccess(const std::string &srcUrl, const std::string &storagePath, const std::string &customId)
+{
+    dbg << "onSuccess -> srcUrl " << srcUrl << ", storagePath: " << storagePath << ", customId: " << customId << endl;
+//    std::string filename = storagePath 
+    COTDMain::configureImage("./capybara1234.jpg");
+
+}
+
 void COTDMain::googleSearchCallback(bool succeeded,
                                     const std::string& link,
                                     const std::string& thumbnailLink,
@@ -209,6 +209,32 @@ void COTDMain::googleSearchCallback(bool succeeded,
                                     const std::string& error)
 {
     dbg << endl;
+#define DEFAULT_CONNECTION_TIMEOUT 8
+
+    this->_downloader = std::make_shared<cocos2d::extension::Downloader>();
+    this->_downloader->setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
+
+    this->_downloader->setErrorCallback(std::bind(&COTDMain::onError,
+                                           this,
+                                           std::placeholders::_1));
+    
+    this->_downloader->setProgressCallback(std::bind(&COTDMain::onProgress,
+                                         this,
+                                         std::placeholders::_1,
+                                         std::placeholders::_2,
+                                         std::placeholders::_3,
+                                         std::placeholders::_4));
+    this->_downloader->setSuccessCallback(std::bind(&COTDMain::onSuccess,
+                                             this,
+                                             std::placeholders::_1,
+                                             std::placeholders::_2,
+                                             std::placeholders::_3));
+
+//    unsigned char* buffer = new unsigned char;
+//    long size = 0;
+//    downloader->downloadToBufferSync(link, buffer, size);
+    this->_storagePath = "./capybara1234.jpg";
+    this->_downloader->downloadAsync(link, this->_storagePath);
     
 }
 

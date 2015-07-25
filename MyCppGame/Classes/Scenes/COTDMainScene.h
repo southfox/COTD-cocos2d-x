@@ -2,6 +2,7 @@
 #define __COTDMAIN_SCENE_H__
 
 #include "cocos2d.h"
+#include <assets-manager/Downloader.h>
 
 using namespace cocos2d;
 
@@ -17,6 +18,9 @@ private:
     void configureMenu();
     void searchGoogle();
     
+    std::string _storagePath;
+    std::shared_ptr<cocos2d::extension::Downloader> _downloader;
+
     // a selector callback
     void menuLikeCallback(cocos2d::Ref* pSender);
     void menuGridCallback(cocos2d::Ref* pSender);
@@ -26,6 +30,10 @@ private:
                               const std::string& thumbnailLink,
                               const std::string& title,
                               const std::string& error);
+    void onError(const cocos2d::extension::Downloader::Error &error);
+    void onProgress(double total, double downloaded, const std::string &url, const std::string &customId);
+    void onSuccess(const std::string &srcUrl, const std::string &storagePath, const std::string &customId);
+
 
 public:
     // there's no 'id' in cpp, so we recommend returning the class instance pointer
