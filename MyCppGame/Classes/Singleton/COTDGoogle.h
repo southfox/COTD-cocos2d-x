@@ -25,21 +25,22 @@ public:
 
     void queryTerm(const std::string& term, const int& start, const ccGoogleCallback& callback);
 
+    ccGoogleCallback callback;
+
+protected:
+    static COTDGoogle* _instance;
+    
+    COTDGoogle();
+    
+private:
     bool parseResponse(cocos2d::network::HttpResponse *response,
                        std::string& link,
                        std::string& thumbnailLink,
                        std::string& title,
                        std::string& error);
-
+    
     void onHttpRequestCompleted(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
 
-    ccGoogleCallback callback;
-
-protected:
-    COTDGoogle();
-    
-private:
-    static COTDGoogle* _instance;
 };
 
 #endif // __COTDGOOGLE_H__

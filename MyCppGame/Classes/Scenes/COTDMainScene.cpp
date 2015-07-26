@@ -232,7 +232,9 @@ void COTDMain::googleSearchCallback(bool succeeded,
                                              std::placeholders::_3));
 
     std::size_t found = link.find_last_of("/");
-    std::string storagePath = "./";
+    FileUtils* fu = FileUtils::getInstance();
+    std::string storagePath = fu->getWritablePath();
+
     storagePath += link.substr(found+1);
     
     this->downloader->downloadAsync(link, storagePath);
