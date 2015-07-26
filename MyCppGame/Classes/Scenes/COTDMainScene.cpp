@@ -126,7 +126,7 @@ void COTDMain::configureTitle()
     this->addChild(label, 1);
 }
 
-void COTDMain::configureImage(const char *imageName)
+void COTDMain::configureImage(const std::string &imageName)
 {
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
@@ -197,8 +197,8 @@ void COTDMain::onProgress(double total, double downloaded, const std::string &ur
 void COTDMain::onSuccess(const std::string &srcUrl, const std::string &storagePath, const std::string &customId)
 {
     dbg << "onSuccess -> srcUrl " << srcUrl << ", storagePath: " << storagePath << ", customId: " << customId << endl;
-//    std::string filename = storagePath 
-    COTDMain::configureImage("./capybara1234.jpg");
+
+    COTDMain::configureImage(storagePath);
 
 }
 
@@ -211,30 +211,31 @@ void COTDMain::googleSearchCallback(bool succeeded,
     dbg << endl;
 #define DEFAULT_CONNECTION_TIMEOUT 8
 
-    this->_downloader = std::make_shared<cocos2d::extension::Downloader>();
-    this->_downloader->setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
+    this->downloader = std::make_shared<cocos2d::extension::Downloader>();
+    this->downloader->setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
 
-    this->_downloader->setErrorCallback(std::bind(&COTDMain::onError,
+    this->downloader->setErrorCallback(std::bind(&COTDMain::onError,
                                            this,
                                            std::placeholders::_1));
     
-    this->_downloader->setProgressCallback(std::bind(&COTDMain::onProgress,
+    this->downloader->setProgressCallback(std::bind(&COTDMain::onProgress,
                                          this,
                                          std::placeholders::_1,
                                          std::placeholders::_2,
                                          std::placeholders::_3,
                                          std::placeholders::_4));
-    this->_downloader->setSuccessCallback(std::bind(&COTDMain::onSuccess,
+    
+    this->downloader->setSuccessCallback(std::bind(&COTDMain::onSuccess,
                                              this,
                                              std::placeholders::_1,
                                              std::placeholders::_2,
                                              std::placeholders::_3));
 
-//    unsigned char* buffer = new unsigned char;
-//    long size = 0;
-//    downloader->downloadToBufferSync(link, buffer, size);
-    this->_storagePath = "./capybara1234.jpg";
-    this->_downloader->downloadAsync(link, this->_storagePath);
+    std::size_t found = link.find_last_of("/");
+    std::string storagePath = "./";
+    storagePath += link.substr(found+1);
+    
+    this->downloader->downloadAsync(link, storagePath);
     
 }
 

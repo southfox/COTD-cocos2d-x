@@ -8,18 +8,17 @@ using namespace cocos2d;
 
 class COTDMain : public cocos2d::Layer
 {
+protected:
+    std::shared_ptr<cocos2d::extension::Downloader> downloader;
 
 private:
     MenuItemImage* createCloseButton();
     MenuItemLabel* createLikeButton();
     MenuItemLabel* createGridButton();
     void configureTitle();
-    void configureImage(const char *imageName);
+    void configureImage(const std::string &imageName);
     void configureMenu();
     void searchGoogle();
-    
-    std::string _storagePath;
-    std::shared_ptr<cocos2d::extension::Downloader> _downloader;
 
     // a selector callback
     void menuLikeCallback(cocos2d::Ref* pSender);
@@ -33,7 +32,6 @@ private:
     void onError(const cocos2d::extension::Downloader::Error &error);
     void onProgress(double total, double downloaded, const std::string &url, const std::string &customId);
     void onSuccess(const std::string &srcUrl, const std::string &storagePath, const std::string &customId);
-
 
 public:
     // there's no 'id' in cpp, so we recommend returning the class instance pointer
