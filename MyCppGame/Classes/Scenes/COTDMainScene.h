@@ -18,17 +18,25 @@ private:
     void configureTitle();
     void configureImage(const std::string &imageName);
     void configureMenu();
-    void searchGoogle();
 
-    // a selector callback
-    void menuLikeCallback(cocos2d::Ref* pSender);
-    void menuGridCallback(cocos2d::Ref* pSender);
-    void menuCloseCallback(cocos2d::Ref* pSender);
+    // Google
+    void searchGoogle();
     void googleSearchCallback(bool succeeded,
                               const std::string& link,
                               const std::string& thumbnailLink,
                               const std::string& title,
                               const std::string& error);
+
+    // Parse.com
+    void queryParse();
+    void parseQueryCallback(bool succeeded,
+                            const std::string& error);
+
+    // a selector callback
+    void menuLikeCallback(cocos2d::Ref* pSender);
+    void menuGridCallback(cocos2d::Ref* pSender);
+    void menuCloseCallback(cocos2d::Ref* pSender);
+
     void onError(const cocos2d::extension::Downloader::Error &error);
     void onProgress(double total, double downloaded, const std::string &url, const std::string &customId);
     void onSuccess(const std::string &srcUrl, const std::string &storagePath, const std::string &customId);

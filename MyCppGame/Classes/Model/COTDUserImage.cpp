@@ -8,27 +8,21 @@
 
 #import "COTDUserImage.h"
 
+COTDUserImage::COTDUserImage(const char *image, const char *savedAt)
+: image(image), savedAt(savedAt)
+{
+    
+}
 
 const std::string &COTDUserImage::getImage() const
 {
     return this->image;
 }
 
-void COTDUserImage::setImage(const std::string &image)
-{
-    this->image = image;
-}
-
 const std::string& COTDUserImage::getSavedAt() const
 {
     return this->savedAt;
 }
-
-void COTDUserImage::setSavedAt(const std::string& savedAt)
-{
-    this->savedAt = savedAt;
-}
-
 
 
 

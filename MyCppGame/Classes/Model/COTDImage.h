@@ -22,20 +22,17 @@ private:
     
 public:
     
+    COTDImage(const char *objectId,
+              const char *link,
+              const char *thumbnail,
+              const char *title,
+              const int likes);
+    
     const std::string& getObjectId() const;
-    void setObjectId(const std::string& objectId);
-
     const std::string& getFullUrl() const;
-    void setFullUrl(const std::string& fullUrl);
-    
     const std::string& getThumbnailUrl() const;
-    void setThumbnailUrl(const std::string& thumbnailUrl);
-    
     const std::string& getImageTitle() const;
-    void setImageTitle(const std::string& imageTitle);
-
     const int getLikes() const;
-    void setLikes(const int likes);
     
 };
 #endif /* defined(__COTD__COTDImage__) */

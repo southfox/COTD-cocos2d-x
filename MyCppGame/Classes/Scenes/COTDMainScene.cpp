@@ -5,6 +5,7 @@ USING_NS_CC;
 #include "COTDDate.h"
 #include "COTDLog.h"
 #include "COTDGoogle.h"
+#include "COTDParse.h"
 #include <assets-manager/Downloader.h>
 
 Scene* COTDMain::createScene()
@@ -33,7 +34,7 @@ bool COTDMain::init()
     }
     
     dbg << endl;
-    COTDMain::searchGoogle();
+    COTDMain::queryParse();
 
     COTDMain::configureMenu();
     
@@ -105,12 +106,6 @@ void COTDMain::configureTitle()
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-    /////////////////////////////
-    // 3. add your codes below...
-    
-    // add a label shows "Hello World"
-    // create and initialize a label
-    
     std::string title = "Capybara of the day: ";
     COTDDate *date = new COTDDate();
     
@@ -162,6 +157,15 @@ void COTDMain::searchGoogle()
                                                                std::placeholders::_3,
                                                                std::placeholders::_4,
                                                                std::placeholders::_5));
+}
+
+void COTDMain::queryParse()
+{
+    std::string term;
+    COTDParse::sharedInstance()->query(std::bind(&COTDMain::parseQueryCallback,
+                                                 this,
+                                                 std::placeholders::_1,
+                                                 std::placeholders::_2));
 }
 
 void COTDMain::menuLikeCallback(Ref* pSender)
@@ -224,27 +228,34 @@ void COTDMain::googleSearchCallback(bool succeeded,
     }
     
     // File does not exist, download.
-
+    
     this->downloader = std::make_shared<cocos2d::extension::Downloader>();
     this->downloader->setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
-
+    
     this->downloader->setErrorCallback(std::bind(&COTDMain::onError,
-                                           this,
-                                           std::placeholders::_1));
+                                                 this,
+                                                 std::placeholders::_1));
     
     this->downloader->setProgressCallback(std::bind(&COTDMain::onProgress,
-                                         this,
-                                         std::placeholders::_1,
-                                         std::placeholders::_2,
-                                         std::placeholders::_3,
-                                         std::placeholders::_4));
+                                                    this,
+                                                    std::placeholders::_1,
+                                                    std::placeholders::_2,
+                                                    std::placeholders::_3,
+                                                    std::placeholders::_4));
     
     this->downloader->setSuccessCallback(std::bind(&COTDMain::onSuccess,
-                                             this,
-                                             std::placeholders::_1,
-                                             std::placeholders::_2,
-                                             std::placeholders::_3));
-
+                                                   this,
+                                                   std::placeholders::_1,
+                                                   std::placeholders::_2,
+                                                   std::placeholders::_3));
+    
     this->downloader->downloadAsync(link, storagePath);
+}
+
+
+void COTDMain::parseQueryCallback(bool succeeded,
+                                  const std::string& error)
+{
+    dbg << endl;
 }
 

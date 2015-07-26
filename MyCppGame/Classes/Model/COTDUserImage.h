@@ -21,12 +21,11 @@ protected:
     std::string savedAt;
     
 public:
-
-    const std::string& getImage() const;
-    void setImage(const std::string& image);
     
+    COTDUserImage(const char *image, const char *savedAt);
+    
+    const std::string& getImage() const;
     const std::string& getSavedAt() const;
-    void setSavedAt(const std::string& savedAt);
 };
 
 #endif /* defined(__COTD__COTDUserImage__) */
