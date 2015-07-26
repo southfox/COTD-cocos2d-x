@@ -10,9 +10,11 @@
 
 #include "COTDLog.h"
 #include <HttpClient.h>
+#include <vector>
 #include <HttpResponse.h>
 #include "extensions/cocos-ext.h"
 #include "network/HttpClient.h"
+#include "COTDImage.h"
 
 #include "cocostudio/DictionaryHelper.h"
 using namespace cocostudio;
@@ -75,52 +77,85 @@ bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
         error = json.GetParseError();
         return false;
     }
-#if 0
     
-    if (!DICTOOL->checkObjectExist_json(json, P_Items))
+    if (!DICTOOL->checkObjectExist_json(json, P_results))
     {
         error = "not exist ";
-        error += P_Items;
+        error += P_results;
         return false;
     }
     
-    if (!DICTOOL->getArrayCount_json(json, P_Items))
+    int count = DICTOOL->getArrayCount_json(json, P_results);
+    
+    if (!count)
     {
         error = "empty ";
-        error += P_Items;
+        error += P_results;
         return false;
+    }
+
+    int iterator = 0;
+    for (;iterator < count; iterator++)
+    {
+        const rapidjson::Value &resultsDict = DICTOOL->getDictionaryFromArray_json(json, P_results, iterator);
+        
+        std::string fullUrl = DICTOOL->getStringValue_json(resultsDict, P_fullUrl);
+        if (!fullUrl.length())
+        {
+            error = "empty ";
+            error += P_fullUrl;
+            break;
+        }
+        
+        std::string imageTitle = DICTOOL->getStringValue_json(resultsDict, P_imageTitle);
+        if (!imageTitle.length())
+        {
+            error = "empty ";
+            error += P_imageTitle;
+            break;
+        }
+        
+        int likes = DICTOOL->getIntValue_json(resultsDict, P_likes);
+
+        std::string objectId = DICTOOL->getStringValue_json(resultsDict, P_objectId);
+        if (!objectId.length())
+        {
+            error = "empty ";
+            error += P_objectId;
+            break;
+        }
+        
+        std::string thumbnailUrl = DICTOOL->getStringValue_json(resultsDict, P_thumbnailUrl);
+        if (!thumbnailUrl.length())
+        {
+            error = "empty ";
+            error += P_thumbnailUrl;
+            break;
+        }
+        
+        dbg << "#: [" << iterator << "] - "
+            << "fullUrl: [" << fullUrl << "] - "
+            << "imageTitle: [" << imageTitle << "]"
+            << "likes: [" << likes << "]"
+            << "objectId: [" << objectId << "]"
+            << "thumbnailUrl: [" << thumbnailUrl << "]"
+            << endl;
+        
+        COTDImage image(objectId, fullUrl, thumbnailUrl, imageTitle, likes);
+        this->images.push_back(image);
     }
     
-    const rapidjson::Value &itemDic = DICTOOL->getDictionaryFromArray_json(json, P_Items, 0);
-    
-    title = DICTOOL->getStringValue_json(itemDic, P_Title);
-    if (!title.length())
+    if (iterator)
     {
-        error = "empty ";
-        error += P_Title;
-        return false;
-    }
-    link = DICTOOL->getStringValue_json(itemDic, P_Link);
-    if (!link.length())
-    {
-        error = "empty ";
-        error += P_Link;
-        return false;
-    }
-    const rapidjson::Value& image = DICTOOL->getSubDictionary_json(itemDic, P_Image);
-    thumbnailLink = DICTOOL->getStringValue_json(image, P_ThumbnailLink);
-    if (!thumbnailLink.length())
-    {
-        error = "empty ";
-        error += P_ThumbnailLink;
-        return false;
+        if (error.size())
+        {
+            err << error.c_str() << endl;
+        }
+        error = "";
+        return true;
     }
     
-    dbg << "title: [" << title << "] - "
-    << "link: [" << link << "] - "
-    << "thumbnailLink: [" << thumbnailLink << "]" << endl;
-#endif
-    return true;
+    return false;
 }
 
 void COTDParse::onHttpRequestCompletedImages(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
@@ -134,7 +169,11 @@ void COTDParse::onHttpRequestCompletedImages(cocos2d::network::HttpClient *sende
 
         this->callback(succeeded, error);
     }
-
+    
+    for (COTDImage::Vector::iterator iter = this->images.begin(); iter < this->images.end(); ++iter)
+    {
+        inf << "getFullUrl = " << iter->getFullUrl() << endl;
+    }
 }
 
 

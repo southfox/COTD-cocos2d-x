@@ -22,10 +22,10 @@ private:
     
 public:
     
-    COTDImage(const char *objectId,
-              const char *link,
-              const char *thumbnail,
-              const char *title,
+    COTDImage(const std::string &objectId,
+              const std::string &link,
+              const std::string &thumbnail,
+              const std::string &title,
               const int likes);
     
     const std::string& getObjectId() const;
@@ -33,6 +33,9 @@ public:
     const std::string& getThumbnailUrl() const;
     const std::string& getImageTitle() const;
     const int getLikes() const;
+    
+    typedef std::vector <COTDImage> Vector;
+
     
 };
 #endif /* defined(__COTD__COTDImage__) */

@@ -8,10 +8,10 @@
 
 #include "COTDImage.h"
 
-COTDImage::COTDImage(const char *objectId,
-                     const char *link,
-                     const char *thumbnail,
-                     const char *title,
+COTDImage::COTDImage(const std::string &objectId,
+                     const std::string &link,
+                     const std::string &thumbnail,
+                     const std::string &title,
                      const int likes) :
 objectId(objectId),
 fullUrl(link),

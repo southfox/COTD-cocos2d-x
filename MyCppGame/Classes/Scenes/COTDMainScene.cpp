@@ -6,6 +6,7 @@ USING_NS_CC;
 #include "COTDLog.h"
 #include "COTDGoogle.h"
 #include "COTDParse.h"
+#include "COTDImage.h"
 #include <assets-manager/Downloader.h>
 
 Scene* COTDMain::createScene()
@@ -257,5 +258,6 @@ void COTDMain::parseQueryCallback(bool succeeded,
                                   const std::string& error)
 {
     dbg << endl;
+    
 }
 

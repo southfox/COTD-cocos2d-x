@@ -10,15 +10,18 @@
 #define __COTDPARSE_H__
 
 #include "network/HttpClient.h"
+#include "COTDImage.h"
+
 typedef std::function<void(bool, const std::string&)> ccParseCallback;
 
 class COTDParse
 {
-    const char* P_Items = "items";
-    const char* P_Title = "title";
-    const char* P_Link = "link";
-    const char* P_Image = "image";
-    const char* P_ThumbnailLink = "thumbnailLink";
+    const char* P_results = "results";
+    const char* P_fullUrl = "fullUrl";
+    const char* P_imageTitle = "imageTitle";
+    const char* P_likes = "likes";
+    const char* P_objectId = "objectId";
+    const char* P_thumbnailUrl = "thumbnailUrl";
 
 public:
     static COTDParse* sharedInstance();
@@ -51,7 +54,7 @@ public:
 
 protected:
     static COTDParse* _instance;
-    
+        
     COTDParse();
     
 private:
@@ -64,6 +67,8 @@ private:
     
     const char * applicationId();
     const char * apiKey();
+
+    COTDImage::Vector images;
 
 };
 
