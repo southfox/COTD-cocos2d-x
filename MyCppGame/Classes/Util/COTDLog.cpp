@@ -28,25 +28,38 @@ COTDLog::COTDLog()
 
 char* COTDLog::getName() {
    std::strstream Nombre;
-   if (getenv("COTD_LOG_DIR") == NULL) {
-       std::cerr << "variable de ambiente COTD_LOG_DIR no existe" << nl;
-       Nombre << "/tmp";
-   } else {
-       Nombre << getenv("COTD_LOG_DIR");
-   }
-   Nombre << "/";
-   if (getenv("COTD_LOG_FILE") == NULL) {
-       std::cerr << "variable de ambiente COTD_LOG_FILE no existe" << nl;
-       COTDDate d;
-//       std::string username = getenv("USERNAME");
-       Nombre << "COTD_"
-	      << (getenv("USERNAME") ?: "No_USERNME") << '_'	// obtiene usuario linux que hizo login al equipo
-	      << d << ".log";
-   } else {
-       Nombre << getenv("COTD_LOG_FILE");
-   }
-   Nombre << '\0';
-   return Nombre.str();
+#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+    cocos2d::FileUtils* fu = cocos2d::FileUtils::getInstance();
+    Nombre << fu->getWritablePath();
+    COTDDate d;
+    Nombre << "COTD_"
+    << (getenv("USERNAME") ?: "No_USERNME") << '_'	// obtiene usuario linux que hizo login al equipo
+    << d << ".log";
+    Nombre << '\0';
+    return Nombre.str();
+#elif CC_TARGET_PLATFORM == CC_PLATFORM_LINUX
+    if (getenv("COTD_LOG_DIR") == NULL) {
+        std::cerr << "variable de ambiente COTD_LOG_DIR no existe" << nl;
+        Nombre << "/tmp";
+    } else {
+        Nombre << getenv("COTD_LOG_DIR");
+    }
+    Nombre << "/";
+    if (getenv("COTD_LOG_FILE") == NULL) {
+        std::cerr << "variable de ambiente COTD_LOG_FILE no existe" << nl;
+        COTDDate d;
+        //       std::string username = getenv("USERNAME");
+        Nombre << "COTD_"
+        << (getenv("USERNAME") ?: "No_USERNME") << '_'	// obtiene usuario linux que hizo login al equipo
+        << d << ".log";
+    } else {
+        Nombre << getenv("COTD_LOG_FILE");
+    }
+    Nombre << '\0';
+    return Nombre.str();
+#else
+    return "COTDLog";
+#endif
 }
 
 /**
