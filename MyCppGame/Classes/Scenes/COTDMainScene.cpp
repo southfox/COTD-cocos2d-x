@@ -210,6 +210,20 @@ void COTDMain::googleSearchCallback(bool succeeded,
 {
     dbg << endl;
 #define DEFAULT_CONNECTION_TIMEOUT 8
+    
+    std::size_t found = link.find_last_of("/");
+    FileUtils* fu = FileUtils::getInstance();
+    std::string storagePath = fu->getWritablePath();
+    
+    storagePath += link.substr(found+1);
+    
+    if (fu->isFileExist(storagePath))
+    {
+        COTDMain::configureImage(storagePath);
+        return;
+    }
+    
+    // File does not exist, download.
 
     this->downloader = std::make_shared<cocos2d::extension::Downloader>();
     this->downloader->setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
@@ -231,13 +245,6 @@ void COTDMain::googleSearchCallback(bool succeeded,
                                              std::placeholders::_2,
                                              std::placeholders::_3));
 
-    std::size_t found = link.find_last_of("/");
-    FileUtils* fu = FileUtils::getInstance();
-    std::string storagePath = fu->getWritablePath();
-
-    storagePath += link.substr(found+1);
-    
     this->downloader->downloadAsync(link, storagePath);
-    
 }
 
