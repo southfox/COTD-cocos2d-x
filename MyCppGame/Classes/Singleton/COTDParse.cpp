@@ -109,6 +109,8 @@ void COTDParse::queryImages(const cocos2d::network::ccHttpRequestCallback& callb
     
     request->setResponseCallback(callback);
     request->setTag("GET COTD_IMAGES");
+//    cocos2d::network::HttpClient::getInstance()->setTimeoutForConnect(10);
+//    cocos2d::network::HttpClient::getInstance()->setTimeoutForRead(10);
     cocos2d::network::HttpClient::getInstance()->send(request);
     request->release();
 }
@@ -247,10 +249,10 @@ void COTDParse::onHttpRequestCompletedQueryImages(cocos2d::network::HttpClient *
     bool succeeded = false;
     std::string error;
     
-        succeeded = this->parseResponse(response, error, this->images);
-        
     if (this->callbackQueryImages)
     {
+        succeeded = this->parseResponse(response, error, this->images);
+        
         this->callbackQueryImages(succeeded, error);
     }
     
