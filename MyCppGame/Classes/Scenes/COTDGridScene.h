@@ -3,6 +3,8 @@
 
 #include "cocos2d.h"
 
+#include "COTDImage.h"
+
 using namespace cocos2d;
 
 class COTDGrid : public cocos2d::Layer
@@ -13,6 +15,11 @@ private:
     void configureTitle();
     void configureImages();
     void configureMenu();
+    
+    void queryParse();
+    void parseQueryCallback(bool succeeded,
+                            const std::string& error,
+                            const COTDImage::Vector& vector);
     
     // a selector callback
     void menuBackCallback(cocos2d::Ref* pSender);

@@ -35,6 +35,8 @@ bool COTDMain::init()
     }
     
     dbg << endl;
+
+//    COTDMain::searchGoogle();
     COTDMain::queryParse();
 
     COTDMain::configureMenu();
@@ -108,9 +110,9 @@ void COTDMain::configureTitle()
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
     std::string title = "Capybara of the day: ";
-    COTDDate *date = new COTDDate();
+    COTDDate date;
     
-    title += date->D2Str();
+    title += date.D2Str();
     
     auto label = Label::createWithTTF(title, "fonts/Marker Felt.ttf", 50);
     

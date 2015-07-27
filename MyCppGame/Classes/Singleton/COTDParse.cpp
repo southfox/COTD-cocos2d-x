@@ -31,8 +31,92 @@ COTDParse* COTDParse::sharedInstance()
     return _instance;
 }
 
+COTDParse::~COTDParse()
+{
+    delete _instance;
+}
+
+
+COTDParse::COTDParse()
+{
+    dbg << endl;
+}
+
+
+
+#define COTDIMAGE_URL                       "https://api.parse.com/1/classes/COTDImage"
+#define COTDUSERIMAGE_URL                   "https://api.parse.com/1/classes/COTDUserImage"
+#define PARSEAPPLICATIONID_HEADER_FIELD     "X-Parse-Application-Id"
+#define PARSERESTAPIKEY_HEADER_FIELD        "X-Parse-REST-API-Key"
+#define PARSEAPPLICATIONID_HEADER_VALUE     "4w57EiBsbDCULkdlP5q1Q0R5bLPDupCbokbNT4KU"
+#define PARSERESTAPIKEY_HEADER_VALUE        "IbCj3m1TlWMag98nQDDkv1nXUAvMN7PW6fNsbMYP"
+
+void COTDParse::query(const ccParseCallback& callback)
+{
+    dbg << endl;
+    
+    this->callbackQueryImages = callback;
+    
+    this->queryImages(CC_CALLBACK_2(COTDParse::onHttpRequestCompletedQueryImages, this));
+}
+
+void COTDParse::queryTopTenImages(const ccTopTenParseCallback& callback)
+{
+    this->callbackQueryTopTenImages = callback;
+    
+    this->queryImages(CC_CALLBACK_2(COTDParse::onHttpRequestCompletedQueryTopTenImages, this), 10, true);
+}
+
+const char *COTDParse::applicationId()
+{
+    std::string applicationId = PARSEAPPLICATIONID_HEADER_FIELD;
+    applicationId += ":";
+    applicationId += PARSEAPPLICATIONID_HEADER_VALUE;
+    return applicationId.c_str();
+}
+
+
+const char *COTDParse::apiKey()
+{
+    std::string apiKey = PARSERESTAPIKEY_HEADER_FIELD;
+    apiKey += ":";
+    apiKey += PARSERESTAPIKEY_HEADER_VALUE;
+    return apiKey.c_str();
+}
+
+
+void COTDParse::queryImages(const cocos2d::network::ccHttpRequestCallback& callback, int limit, bool onlyLikes)
+{
+    cocos2d::network::HttpRequest* request = new (std::nothrow) cocos2d::network::HttpRequest();
+    
+    std::strstream aux;
+    aux << COTDIMAGE_URL << "?limit=" << limit;
+    if (onlyLikes)
+    {
+        aux << "&where={\"likes\":{\"$gte\":0}}";
+        aux << "&order=-likes";
+    }
+    aux << '\0';
+
+    dbg << "Url = [" << aux.str() << "]" << endl;
+    request->setUrl(aux.str());
+    request->setRequestType(cocos2d::network::HttpRequest::Type::GET);
+
+    std::vector<std::string> headers;
+    headers.push_back(this->applicationId());
+    headers.push_back(this->apiKey());
+    request->setHeaders(headers);
+    
+    request->setResponseCallback(callback);
+    request->setTag("GET COTD_IMAGES");
+    cocos2d::network::HttpClient::getInstance()->send(request);
+    request->release();
+}
+
+
 bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
-                               std::string& error)
+                              std::string& error,
+                              COTDImage::Vector &vector)
 {
     if (!response)
     {
@@ -93,7 +177,7 @@ bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
         error += P_results;
         return false;
     }
-
+    
     int iterator = 0;
     for (;iterator < count; iterator++)
     {
@@ -116,7 +200,7 @@ bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
         }
         
         int likes = DICTOOL->getIntValue_json(resultsDict, P_likes);
-
+        
         std::string objectId = DICTOOL->getStringValue_json(resultsDict, P_objectId);
         if (!objectId.length())
         {
@@ -134,15 +218,15 @@ bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
         }
         
         dbg << "#: [" << iterator << "] - "
-            << "fullUrl: [" << fullUrl << "] - "
-            << "imageTitle: [" << imageTitle << "]"
-            << "likes: [" << likes << "]"
-            << "objectId: [" << objectId << "]"
-            << "thumbnailUrl: [" << thumbnailUrl << "]"
-            << endl;
+        << "fullUrl: [" << fullUrl << "] - "
+        << "imageTitle: [" << imageTitle << "]"
+        << "likes: [" << likes << "]"
+        << "objectId: [" << objectId << "]"
+        << "thumbnailUrl: [" << thumbnailUrl << "]"
+        << endl;
         
         COTDImage image(objectId, fullUrl, thumbnailUrl, imageTitle, likes);
-        this->images.push_back(image);
+        vector.push_back(image);
     }
     
     if (iterator)
@@ -158,16 +242,16 @@ bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
     return false;
 }
 
-void COTDParse::onHttpRequestCompletedImages(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
+void COTDParse::onHttpRequestCompletedQueryImages(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
 {
     bool succeeded = false;
     std::string error;
     
-    if (this->callback)
+        succeeded = this->parseResponse(response, error, this->images);
+        
+    if (this->callbackQueryImages)
     {
-        succeeded = this->parseResponse(response, error);
-
-        this->callback(succeeded, error);
+        this->callbackQueryImages(succeeded, error);
     }
     
     for (COTDImage::Vector::iterator iter = this->images.begin(); iter < this->images.end(); ++iter)
@@ -177,61 +261,22 @@ void COTDParse::onHttpRequestCompletedImages(cocos2d::network::HttpClient *sende
 }
 
 
-COTDParse::COTDParse()
+void COTDParse::onHttpRequestCompletedQueryTopTenImages(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
 {
-    dbg << endl;
-}
-
-
-
-#define COTDIMAGE_URL "https://api.parse.com/1/classes/COTDImage"
-#define COTDUSERIMAGE_URL "https://api.parse.com/1/classes/COTDUserImage"
-#define PARSEAPPLICATIONID_HEADER_FIELD     "X-Parse-Application-Id"
-#define PARSERESTAPIKEY_HEADER_FIELD        "X-Parse-REST-API-Key"
-#define PARSEAPPLICATIONID_HEADER_VALUE     "4w57EiBsbDCULkdlP5q1Q0R5bLPDupCbokbNT4KU"
-#define PARSERESTAPIKEY_HEADER_VALUE        "IbCj3m1TlWMag98nQDDkv1nXUAvMN7PW6fNsbMYP"
-
-void COTDParse::query(const ccParseCallback& callback)
-{
-    dbg << endl;
+    bool succeeded = false;
+    std::string error;
     
-    this->callback = callback;
+    if (this->callbackQueryImages)
+    {
+        succeeded = this->parseResponse(response, error, this->images);
+        
+        this->callbackQueryImages(succeeded, error);
+    }
     
-    this->queryImages();
+    for (COTDImage::Vector::iterator iter = this->images.begin(); iter < this->images.end(); ++iter)
+    {
+        inf << "getFullUrl = " << iter->getFullUrl() << endl;
+    }
 }
 
-const char *COTDParse::applicationId()
-{
-    std::string applicationId = PARSEAPPLICATIONID_HEADER_FIELD;
-    applicationId += ":";
-    applicationId += PARSEAPPLICATIONID_HEADER_VALUE;
-    return applicationId.c_str();
-}
-
-
-const char *COTDParse::apiKey()
-{
-    std::string apiKey = PARSERESTAPIKEY_HEADER_FIELD;
-    apiKey += ":";
-    apiKey += PARSERESTAPIKEY_HEADER_VALUE;
-    return apiKey.c_str();
-}
-
-
-void COTDParse::queryImages()
-{
-    cocos2d::network::HttpRequest* request = new (std::nothrow) cocos2d::network::HttpRequest();
-    request->setUrl(COTDIMAGE_URL);
-    request->setRequestType(cocos2d::network::HttpRequest::Type::GET);
-
-    std::vector<std::string> headers;
-    headers.push_back(this->applicationId());
-    headers.push_back(this->apiKey());
-    request->setHeaders(headers);
-    
-    request->setResponseCallback(CC_CALLBACK_2(COTDParse::onHttpRequestCompletedImages, this));
-    request->setTag("GET COTD_IMAGES");
-    cocos2d::network::HttpClient::getInstance()->send(request);
-    request->release();
-}
 

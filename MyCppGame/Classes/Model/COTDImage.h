@@ -35,7 +35,7 @@ public:
     const int getLikes() const;
     
     typedef std::vector <COTDImage> Vector;
-
     
+    bool operator < (const COTDImage &other) const;
 };
 #endif /* defined(__COTD__COTDImage__) */

@@ -22,6 +22,7 @@ class COTDGoogle
 
 public:
     static COTDGoogle* sharedInstance();
+    ~COTDGoogle();
 
     void queryTerm(const std::string& term, const int& start, const ccGoogleCallback& callback);
 

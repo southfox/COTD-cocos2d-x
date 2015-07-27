@@ -13,6 +13,7 @@
 #include "COTDImage.h"
 
 typedef std::function<void(bool, const std::string&)> ccParseCallback;
+typedef std::function<void(bool, const std::string&, const COTDImage::Vector&)> ccTopTenParseCallback;
 
 class COTDParse
 {
@@ -25,32 +26,13 @@ class COTDParse
 
 public:
     static COTDParse* sharedInstance();
+    ~COTDParse();
 
     void query(const ccParseCallback& callback);
+    void queryTopTenImages(const ccTopTenParseCallback& callback);
 
-    ccParseCallback callback;
-
-#if 0
-- (void)configureWithLaunchOptions:(NSDictionary *)launchOptions finishBlock:(void (^)(BOOL succeeded, NSError *error))finishBlock;
-
-- (NSString *)currentUserSearchTerm;
-- (void)changeCurrentUserSearchTerm:(NSString *)searchTerm;
-
-- (NSUInteger)currentStart;
-
-- (NSString *)currentUserImageTitle;
-
-- (NSString *)currentUserImageUrl;
-
-- (BOOL)isLinkRepeated:(NSString *)fullUrl;
-
-- (void)likeCurrentImage:(void (^)(BOOL succeeded, NSError *error))finishBlock;
-
-- (void)updateImage:(NSString *)imageUrl thumbnailUrl:(NSString *)thumbnailUrl title:(NSString *)title searchTerm:(NSString *)searchTerm finishBlock:(void (^)(BOOL succeeded, COTDImage* image, NSError *error))finishBlock;
-
-- (void)topTenImages:(void (^)(NSArray *objects, NSError *error))finishBlock;
-
-#endif
+    ccParseCallback callbackQueryImages;
+    ccTopTenParseCallback callbackQueryTopTenImages;
 
 protected:
     static COTDParse* _instance;
@@ -59,11 +41,13 @@ protected:
     
 private:
     bool parseResponse(cocos2d::network::HttpResponse *response,
-                       std::string& error);
+                       std::string& error,
+                       COTDImage::Vector &vector);
     
-    void onHttpRequestCompletedImages(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
+    void queryImages(const cocos2d::network::ccHttpRequestCallback& callback, int limit = 1000, bool onlyLikes = false);
 
-    void queryImages();
+    void onHttpRequestCompletedQueryImages(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
+    void onHttpRequestCompletedQueryTopTenImages(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
     
     const char * applicationId();
     const char * apiKey();

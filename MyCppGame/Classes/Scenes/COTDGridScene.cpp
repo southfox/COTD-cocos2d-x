@@ -1,6 +1,8 @@
 USING_NS_CC;
 
 #include "COTDGridScene.h"
+#include "COTDParse.h"
+#include "COTDLog.h"
 
 Scene* COTDGrid::createScene()
 {
@@ -26,6 +28,7 @@ bool COTDGrid::init()
     {
         return false;
     }
+//    COTDGrid::queryParse();
     
     COTDGrid::configureMenu();
     
@@ -67,6 +70,24 @@ void COTDGrid::configureTitle()
     
     // add the label as a child to this layer
     this->addChild(label, 1);
+}
+
+void COTDGrid::queryParse()
+{
+    std::string term;
+    COTDParse::sharedInstance()->queryTopTenImages(std::bind(&COTDGrid::parseQueryCallback,
+                                                             this,
+                                                             std::placeholders::_1,
+                                                             std::placeholders::_2,
+                                                             std::placeholders::_3));
+}
+
+void COTDGrid::parseQueryCallback(bool succeeded,
+                                  const std::string& error,
+                                  const COTDImage::Vector& vector)
+{
+    dbg << endl;
+    
 }
 
 void COTDGrid::configureImages()

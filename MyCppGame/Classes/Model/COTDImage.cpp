@@ -46,3 +46,8 @@ const int COTDImage::getLikes() const
     return this->likes;
 }
 
+bool COTDImage::operator < (const COTDImage &other) const
+{
+    return this->likes > other.likes;
+}
+

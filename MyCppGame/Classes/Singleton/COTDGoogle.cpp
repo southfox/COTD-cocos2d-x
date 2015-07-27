@@ -29,11 +29,44 @@ COTDGoogle* COTDGoogle::sharedInstance()
     return _instance;
 }
 
+
+COTDGoogle::COTDGoogle()
+{
+    dbg << endl;
+}
+
+COTDGoogle::~COTDGoogle()
+{
+    delete _instance;
+}
+
+
+
 //#define URLFORMAT "https://www.googleapis.com/customsearch/v1?key=AIzaSyADOPSjmHQYFFf9ZnWTqVQ3kPRwr5ND6l8&cx=003054679763599795063:tka3twkxrbw&searchType=image&&fields=items(link,title,image/thumbnailLink)&start=%d&num=1&q=capybara"
 //#define URLFORMAT "https://www.googleapis.com/customsearch/v1?key=AIzaSyDipywri5f6D__qqcCgvbBzP9uF5xbP9b0&cx=003054679763599795063:tka3twkxrbw&searchType=image&fields=items(link,title,image/thumbnailLink)&start=%d&num=1&q=capybara"
 //#define URLFORMAT "https://www.googleapis.com/customsearch/v1?key=AIzaSyCv-rIYBwljnGmgJAxMIh8wBaXpqT6U-T0&cx=003054679763599795063:tka3twkxrbw&searchType=image&&fields=items(link,title,image/thumbnailLink)&start=%d&num=1&q=capybara"
 #define URLFORMAT "https://www.googleapis.com/customsearch/v1?key=AIzaSyDhZSxw5rAjmGLHGBJH5ouHDWnMg42LW4g&cx=003054679763599795063:tka3twkxrbw&searchType=image&fields=items(link,title,image/thumbnailLink)&start=%d&num=1&q=capybara"
 //#define URLFORMAT "https://www.googleapis.com/customsearch/v1?key=AIzaSyDipywri5f6D__qqcCgvbBzP9uF5xbP9b0&cx=003054679763599795063:tka3twkxrbw&searchType=image&fields=items(link,title,image/thumbnailLink)&start=%d&num=1&q=capybara"
+
+
+void COTDGoogle::queryTerm(const std::string& term, const int& start, const ccGoogleCallback& callback)
+{
+    dbg << endl;
+    
+    this->callback = callback;
+    
+    char aux[1000];
+    sprintf(aux, URLFORMAT, 1);
+    
+    cocos2d::network::HttpRequest* request = new (std::nothrow) cocos2d::network::HttpRequest();
+    request->setUrl(aux);
+    
+    request->setRequestType(cocos2d::network::HttpRequest::Type::GET);
+    request->setResponseCallback(CC_CALLBACK_2(COTDGoogle::onHttpRequestCompleted, this));
+    request->setTag("GET Google COTD");
+    cocos2d::network::HttpClient::getInstance()->send(request);
+    request->release();
+}
 
 bool COTDGoogle::parseResponse(cocos2d::network::HttpResponse *response,
                                std::string& link,
@@ -142,37 +175,9 @@ void COTDGoogle::onHttpRequestCompleted(cocos2d::network::HttpClient *sender, co
     if (this->callback)
     {
         succeeded = this->parseResponse(response, link, thumbnailLink, title, error);
-
+        
         this->callback(succeeded, link, thumbnailLink, title, error);
     }
-
-}
-
-
-COTDGoogle::COTDGoogle()
-{
-    dbg << endl;
-}
-
-
-
-
-void COTDGoogle::queryTerm(const std::string& term, const int& start, const ccGoogleCallback& callback)
-{
-    dbg << endl;
     
-    this->callback = callback;
-    
-    char aux[1000];
-    sprintf(aux, URLFORMAT, 1);
-    
-    cocos2d::network::HttpRequest* request = new (std::nothrow) cocos2d::network::HttpRequest();
-    request->setUrl(aux);
-    
-    request->setRequestType(cocos2d::network::HttpRequest::Type::GET);
-    request->setResponseCallback(CC_CALLBACK_2(COTDGoogle::onHttpRequestCompleted, this));
-    request->setTag("GET COTD");
-    cocos2d::network::HttpClient::getInstance()->send(request);
-    request->release();
 }
 
