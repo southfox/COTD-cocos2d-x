@@ -72,11 +72,11 @@ bool COTDGoogle::parseResponse(cocos2d::network::HttpResponse *response,
                                std::string& link,
                                std::string& thumbnailLink,
                                std::string& title,
-                               std::string& error)
+                               std::strstream& error)
 {
     if (!response)
     {
-        error = "no response";
+        error << "no response";
         return false;
     }
     // You can get original request type from: response->request->reqType
@@ -96,7 +96,7 @@ bool COTDGoogle::parseResponse(cocos2d::network::HttpResponse *response,
     {
         err << "response failed" << endl;
         err << "error buffer:" << response->getErrorBuffer() << endl;
-        error = response->getErrorBuffer();
+        error << response->getErrorBuffer();
         return false;
     }
     
@@ -114,52 +114,57 @@ bool COTDGoogle::parseResponse(cocos2d::network::HttpResponse *response,
     json.ParseStream<0>(stream);
     if (json.HasParseError()) {
         err << "GetParseError " << json.GetParseError() << endl;
-        error = json.GetParseError();
+        error << json.GetParseError();
         return false;
     }
     
     if (!DICTOOL->checkObjectExist_json(json, P_Items))
     {
-        error = "not exist ";
-        error += P_Items;
+        error << "not exist " << P_Items << '\0';
         return false;
     }
     
     if (!DICTOOL->getArrayCount_json(json, P_Items))
     {
-        error = "empty ";
-        error += P_Items;
+        error << "empty " << P_Items << '\0';
         return false;
     }
     
     const rapidjson::Value &itemDic = DICTOOL->getDictionaryFromArray_json(json, P_Items, 0);
-    
+    if (itemDic.IsNull())
+    {
+        error << "null element " << 0 << " in array " << P_Items << '\0';
+        return false;
+    }
+
     title = DICTOOL->getStringValue_json(itemDic, P_Title);
     if (!title.length())
     {
-        error = "empty ";
-        error += P_Title;
+        error << "empty " << P_Items << "->" << P_Title << '\0';
         return false;
     }
     link = DICTOOL->getStringValue_json(itemDic, P_Link);
     if (!link.length())
     {
-        error = "empty ";
-        error += P_Link;
+        error << "empty " << P_Items << "->" << P_Link << '\0';
         return false;
     }
     const rapidjson::Value& image = DICTOOL->getSubDictionary_json(itemDic, P_Image);
+    if (!image.IsNull())
+    {
+        error << "empty " << P_Items << "->" << P_Image << '\0';
+        return false;
+    }
     thumbnailLink = DICTOOL->getStringValue_json(image, P_ThumbnailLink);
     if (!thumbnailLink.length())
     {
-        error = "empty ";
-        error += P_ThumbnailLink;
+        error << "empty " << P_Items << "->" << P_ThumbnailLink << '\0';
         return false;
     }
     
     dbg << "title: [" << title << "] - "
-    << "link: [" << link << "] - "
-    << "thumbnailLink: [" << thumbnailLink << "]" << endl;
+        << "link: [" << link << "] - "
+        << "thumbnailLink: [" << thumbnailLink << "]" << endl;
     
     return true;
 }
@@ -170,7 +175,7 @@ void COTDGoogle::onHttpRequestCompleted(cocos2d::network::HttpClient *sender, co
     std::string link;
     std::string thumbnailLink;
     std::string title;
-    std::string error;
+    std::strstream error;
     
     if (this->callback)
     {

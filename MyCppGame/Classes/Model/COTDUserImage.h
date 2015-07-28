@@ -22,10 +22,15 @@ protected:
     
 public:
     
-    COTDUserImage(const char *image, const char *savedAt);
+    COTDUserImage(const std::string &image, const std::string &savedAt);
     
     const std::string& getImage() const;
     const std::string& getSavedAt() const;
+    
+    typedef std::vector <COTDUserImage> Vector;
+
+    friend std::ostream& operator << ( std::ostream& osr, const COTDUserImage& userImage);
+
 };
 
 #endif /* defined(__COTD__COTDUserImage__) */

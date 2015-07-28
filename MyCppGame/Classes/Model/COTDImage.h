@@ -37,5 +37,7 @@ public:
     typedef std::vector <COTDImage> Vector;
     
     bool operator < (const COTDImage &other) const;
+    
+    friend std::ostream& operator << ( std::ostream& osr, const COTDImage& image);
 };
 #endif /* defined(__COTD__COTDImage__) */

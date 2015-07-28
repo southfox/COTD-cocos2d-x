@@ -10,7 +10,9 @@
 #define __COTDGOOGLE_H__
 
 #include "network/HttpClient.h"
-typedef std::function<void(bool, const std::string &, const std::string&, const std::string&, const std::string&)> ccGoogleCallback;
+#include <strstream>
+
+typedef std::function<void(bool, const std::string &, const std::string&, const std::string&, const std::strstream&)> ccGoogleCallback;
 
 class COTDGoogle
 {
@@ -38,7 +40,7 @@ private:
                        std::string& link,
                        std::string& thumbnailLink,
                        std::string& title,
-                       std::string& error);
+                       std::strstream& error);
     
     void onHttpRequestCompleted(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
 

@@ -51,3 +51,12 @@ bool COTDImage::operator < (const COTDImage &other) const
     return this->likes > other.likes;
 }
 
+std::ostream& operator << ( std::ostream& osr, const COTDImage& image)
+{
+    osr << "objectId: [" << image.getObjectId() << "], "
+        << "fullUrl: [" << image.getFullUrl() << "], "
+        << "thumbnailUrl: [" << image.getThumbnailUrl() << "], "
+        << "imageTitle: [" << image.getImageTitle() << "], "
+        << "likes: [" << image.getLikes();
+    return osr;
+}

@@ -4,6 +4,7 @@
 #include "cocos2d.h"
 
 #include "COTDImage.h"
+#include <strstream>
 
 using namespace cocos2d;
 
@@ -18,7 +19,7 @@ private:
     
     void queryParse();
     void parseQueryCallback(bool succeeded,
-                            const std::string& error,
+                            const std::strstream& error,
                             const COTDImage::Vector& vector);
     
     // a selector callback

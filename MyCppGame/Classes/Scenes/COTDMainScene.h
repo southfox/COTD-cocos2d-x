@@ -4,6 +4,8 @@
 #include "cocos2d.h"
 #include <assets-manager/Downloader.h>
 
+#include <strstream>
+
 using namespace cocos2d;
 
 class COTDMain : public cocos2d::Layer
@@ -25,12 +27,12 @@ private:
                               const std::string& link,
                               const std::string& thumbnailLink,
                               const std::string& title,
-                              const std::string& error);
+                              const std::strstream& error);
 
     // Parse.com
     void queryParse();
     void parseQueryCallback(bool succeeded,
-                            const std::string& error);
+                            const std::strstream& error);
 
     // a selector callback
     void menuLikeCallback(cocos2d::Ref* pSender);

@@ -80,18 +80,18 @@ COTDLog::COTDLog(const char* name)
  */
 COTDLog::~COTDLog()
 {
-	COTDDate dtLog((char *)"%c");
+    COTDDate dtLog;
 	if (vater == 0) {
 		fs << nl << nl << nl
 		   << "--- " << getpid() 
 		   << ' ' << __FILE__ << ' ' << __FUNCTION__ << "()" << ':' << __LINE__ << ' ' << nl
 		   << std::setfill('=') << std::setiosflags(std::ios::left) << std::setw(80) << '=' << nl
-		   << "PID: " << getpid() << " - FIN Sesion: " << dtLog << nl
+		   << "PID: " << getpid() << " - END Sesion: " << dtLog << nl
 		   << ' ' << __FILE__ << ' ' << __FUNCTION__ << "()" << ':' << __LINE__ << ' ' << nl
 		   << std::setfill('=') << std::setiosflags(std::ios::left) << std::setw(80) << '=' << nl;
 	} else {
 		fs << nl << nl << nl
-		   << "--- " << getpid() << "FIN Sesion del hijo " << getpid() << "." << nl;
+		   << "--- " << getpid() << "END child session " << getpid() << "." << nl;
 	}
 	// WARNING!!
 	// El hijo cierra el log cuando se muere. Seria mejor que no lo hiciera. 
@@ -103,13 +103,13 @@ COTDLog::~COTDLog()
  */
 void COTDLog::open() {
 	fs << nl << nl << nl
-	   << "--- " << getpid() << "OPEN del log" << nl;
+	   << "--- " << getpid() << "OPEN log" << nl;
 	open(getName());
 }
 
 void COTDLog::close() {
 	fs << nl << nl << nl
-	   << "--- " << getpid() << "CLOSE del log" << nl;
+	   << "--- " << getpid() << "CLOSE log" << nl;
 	fs.close();
 }
 
@@ -133,7 +133,7 @@ void COTDLog::open(const char* name)
    if (!fs) {
        std::cerr << "cannot open: " << name << nl;
    }
-   COTDDate dtLog((char *)"%c");
+   COTDDate dtLog;
    fs << "--- " << getpid() 
       << ' ' << __FILE__ << ' ' << __FUNCTION__ << "()" << ':' << __LINE__ << ' ' << nl
       << std::setfill('=') << std::setiosflags(std::ios::left) << std::setw(80) << '=' << nl

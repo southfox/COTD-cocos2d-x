@@ -15,6 +15,8 @@
 #include "extensions/cocos-ext.h"
 #include "network/HttpClient.h"
 #include "COTDImage.h"
+#include "COTDUserImage.h"
+#include "COTDDate.h"
 
 #include "cocostudio/DictionaryHelper.h"
 using namespace cocostudio;
@@ -53,6 +55,11 @@ COTDParse::COTDParse()
 
 void COTDParse::query(const ccParseCallback& callback)
 {
+    return this->queryImages(callback);
+}
+
+void COTDParse::queryImages(const ccParseCallback& callback)
+{
     dbg << endl;
     
     this->callbackQueryImages = callback;
@@ -60,12 +67,22 @@ void COTDParse::query(const ccParseCallback& callback)
     this->queryImages(CC_CALLBACK_2(COTDParse::onHttpRequestCompletedQueryImages, this));
 }
 
-void COTDParse::queryTopTenImages(const ccTopTenParseCallback& callback)
+void COTDParse::queryUserImages(const ccParseCallback& callback)
+{
+    dbg << endl;
+    
+    this->callbackQueryUserImages = callback;
+    
+    this->queryUserImages(CC_CALLBACK_2(COTDParse::onHttpRequestCompletedQueryUserImages, this));
+}
+
+void COTDParse::queryTopTenImages(const ccImageVectorParseCallback& callback)
 {
     this->callbackQueryTopTenImages = callback;
     
     this->queryImages(CC_CALLBACK_2(COTDParse::onHttpRequestCompletedQueryTopTenImages, this), 10, true);
 }
+
 
 const char *COTDParse::applicationId()
 {
@@ -108,27 +125,57 @@ void COTDParse::queryImages(const cocos2d::network::ccHttpRequestCallback& callb
     request->setHeaders(headers);
     
     request->setResponseCallback(callback);
-    request->setTag("GET COTD_IMAGES");
-//    cocos2d::network::HttpClient::getInstance()->setTimeoutForConnect(10);
-//    cocos2d::network::HttpClient::getInstance()->setTimeoutForRead(10);
+    request->setTag("GET COTD_IMAGE");
+    cocos2d::network::HttpClient::getInstance()->send(request);
+    request->release();
+}
+
+void COTDParse::queryUserImages(const cocos2d::network::ccHttpRequestCallback& callback)
+{
+    cocos2d::network::HttpRequest* request = new (std::nothrow) cocos2d::network::HttpRequest();
+    
+    std::strstream aux;
+    aux << COTDUSERIMAGE_URL;
+    
+// TODO: only my user images
+//    aux << "?user=" << user;
+    
+// TODO: only last week
+//    COTDDate now;
+//    COTDDate aWeekAgo(now.year(), now.month(), now.day()-7);
+//    aux << "&where={\"savedAt\":{\"$gte\":" << aWeekAgo << "}}";
+    aux << '\0';
+    
+    dbg << "Url = [" << aux.str() << "]" << endl;
+    request->setUrl(aux.str());
+    request->setRequestType(cocos2d::network::HttpRequest::Type::GET);
+    
+    std::vector<std::string> headers;
+    headers.push_back(this->applicationId());
+    headers.push_back(this->apiKey());
+    request->setHeaders(headers);
+    
+    request->setResponseCallback(callback);
+    request->setTag("GET COTD_USER_IMAGE");
     cocos2d::network::HttpClient::getInstance()->send(request);
     request->release();
 }
 
 
+
 bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
-                              std::string& error,
-                              COTDImage::Vector &vector)
+                              std::strstream& error,
+                              rapidjson::Document &json)
 {
     if (!response)
     {
-        error = "no response";
+        error << "no response" << '\0';
         return false;
     }
     // You can get original request type from: response->request->reqType
     if (0 != strlen(response->getHttpRequest()->getTag()))
     {
-        dbg << response->getHttpRequest()->getTag() << " completed";
+        dbg << response->getHttpRequest()->getTag() << " completed" << endl;
     }
     
     long statusCode = response->getResponseCode();
@@ -142,7 +189,7 @@ bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
     {
         err << "response failed" << endl;
         err << "error buffer:" << response->getErrorBuffer() << endl;
-        error = response->getErrorBuffer();
+        error << response->getErrorBuffer() << '\0';
         return false;
     }
     
@@ -154,29 +201,50 @@ bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
     }
     dbg << "COTDParse::onHttpRequestCompleted() dump data:" << "{\n" << res.c_str() << "}\n" << endl;
     
-    rapidjson::Document json;
     rapidjson::StringStream stream(res.c_str());
     
     json.ParseStream<0>(stream);
     if (json.HasParseError()) {
         err << "GetParseError " << json.GetParseError() << endl;
-        error = json.GetParseError();
+        error << json.GetParseError() << '\0';
         return false;
     }
-    
+    return true;
+}
+
+int COTDParse::countElements(std::strstream& error,
+                             rapidjson::Document &json)
+{
     if (!DICTOOL->checkObjectExist_json(json, P_results))
     {
-        error = "not exist ";
-        error += P_results;
-        return false;
+        error << "not exist " << P_results << '\0';
+        return 0;
     }
     
     int count = DICTOOL->getArrayCount_json(json, P_results);
     
     if (!count)
     {
-        error = "empty ";
-        error += P_results;
+        error << "empty " << P_results << '\0';
+        return 0;
+    }
+
+    return count;
+}
+    
+bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
+                              std::strstream& error,
+                              COTDImage::Vector &vector)
+{
+    rapidjson::Document json;
+    if (!this->parseResponse(response, error, json))
+    {
+        return false;
+    }
+    
+    int count = this->countElements(error, json);
+    if (!count)
+    {
         return false;
     }
     
@@ -185,59 +253,120 @@ bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
     {
         const rapidjson::Value &resultsDict = DICTOOL->getDictionaryFromArray_json(json, P_results, iterator);
         
-        std::string fullUrl = DICTOOL->getStringValue_json(resultsDict, P_fullUrl);
+        const std::string& fullUrl = DICTOOL->getStringValue_json(resultsDict, P_fullUrl);
         if (!fullUrl.length())
         {
-            error = "empty ";
-            error += P_fullUrl;
+            error << "empty " << P_results << "->" << P_fullUrl << '\0';
             break;
         }
         
-        std::string imageTitle = DICTOOL->getStringValue_json(resultsDict, P_imageTitle);
+        const std::string& imageTitle = DICTOOL->getStringValue_json(resultsDict, P_imageTitle);
         if (!imageTitle.length())
         {
-            error = "empty ";
-            error += P_imageTitle;
+            error << "empty " << P_results << "->" << P_imageTitle << '\0';
             break;
         }
         
         int likes = DICTOOL->getIntValue_json(resultsDict, P_likes);
         
-        std::string objectId = DICTOOL->getStringValue_json(resultsDict, P_objectId);
+        const std::string& objectId = DICTOOL->getStringValue_json(resultsDict, P_objectId);
         if (!objectId.length())
         {
-            error = "empty ";
-            error += P_objectId;
+            error << "empty " << P_results << "->" << P_objectId << '\0';
             break;
         }
         
-        std::string thumbnailUrl = DICTOOL->getStringValue_json(resultsDict, P_thumbnailUrl);
+        const std::string& thumbnailUrl = DICTOOL->getStringValue_json(resultsDict, P_thumbnailUrl);
         if (!thumbnailUrl.length())
         {
-            error = "empty ";
-            error += P_thumbnailUrl;
+            error << "empty " << P_results << "->" << P_thumbnailUrl << '\0';
             break;
         }
         
-        dbg << "#: [" << iterator << "] - "
-        << "fullUrl: [" << fullUrl << "] - "
-        << "imageTitle: [" << imageTitle << "]"
-        << "likes: [" << likes << "]"
-        << "objectId: [" << objectId << "]"
-        << "thumbnailUrl: [" << thumbnailUrl << "]"
-        << endl;
-        
         COTDImage image(objectId, fullUrl, thumbnailUrl, imageTitle, likes);
+        dbg << "#" << iterator << ": " << image << endl;
         vector.push_back(image);
     }
     
     if (iterator)
     {
-        if (error.size())
+        if (error.pcount())
         {
-            err << error.c_str() << endl;
+            err << error.str() << endl;
         }
-        error = "";
+        error.clear();
+        return true;
+    }
+    
+    return false;
+}
+
+
+bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
+                              std::strstream& error,
+                              COTDUserImage::Vector &vector)
+{
+    rapidjson::Document json;
+    if (!this->parseResponse(response, error, json))
+    {
+        return false;
+    }
+    
+    int count = this->countElements(error, json);
+    if (!count)
+    {
+        return false;
+    }
+    
+    int iterator = 0;
+    for (;iterator < count; iterator++)
+    {
+        const rapidjson::Value &resultsDict = DICTOOL->getDictionaryFromArray_json(json, P_results, iterator);
+        if (resultsDict.IsNull())
+        {
+            error << "null element " << iterator << " in array " << P_results << '\0';
+            break;
+        }
+        
+        const rapidjson::Value& imageDict = DICTOOL->getSubDictionary_json(resultsDict, P_image);
+        if (imageDict.IsNull())
+        {
+            error << "empty " << P_results << "->" << P_image << '\0';
+            break;
+        }
+        const std::string& image = DICTOOL->getStringValue_json(resultsDict, P_objectId);
+        if (!image.length())
+        {
+            error << "empty " << P_results << "->" << P_image << "->" << P_objectId << '\0';
+            break;
+        }
+        
+        const rapidjson::Value& savedAtDict = DICTOOL->getSubDictionary_json(resultsDict, P_savedAt);
+        if (savedAtDict.IsNull())
+        {
+            error << "empty " << P_results << "->" << P_savedAt << '\0';
+            break;
+        }
+        
+        const std::string& savedAt = DICTOOL->getStringValue_json(resultsDict, P_iso);
+        if (!image.length())
+        {
+            error << "empty " << P_results << "->" << P_savedAt << "->" << P_iso << '\0';
+            break;
+        }
+        
+        COTDUserImage userImage(image, savedAt);
+        dbg << "#" << iterator << ": " << userImage << endl;
+        vector.push_back(userImage);
+    }
+    
+    if (iterator)
+    {
+        if (error.pcount())
+        {
+            err << error.str() << endl;
+        }
+        error.clear();
         return true;
     }
     
@@ -247,13 +376,13 @@ bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
 void COTDParse::onHttpRequestCompletedQueryImages(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
 {
     bool succeeded = false;
-    std::string error;
+    std::strstream error;
     
     if (this->callbackQueryImages)
     {
         succeeded = this->parseResponse(response, error, this->images);
         
-        this->callbackQueryImages(succeeded, error);
+        this->queryUserImages(this->callbackQueryImages);
     }
     
     for (COTDImage::Vector::iterator iter = this->images.begin(); iter < this->images.end(); ++iter)
@@ -262,11 +391,29 @@ void COTDParse::onHttpRequestCompletedQueryImages(cocos2d::network::HttpClient *
     }
 }
 
+void COTDParse::onHttpRequestCompletedQueryUserImages(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
+{
+    bool succeeded = false;
+    std::strstream error;
+    
+    if (this->callbackQueryUserImages)
+    {
+        succeeded = this->parseResponse(response, error, this->userImages);
+        
+        this->callbackQueryUserImages(succeeded, error);
+    }
+    
+    for (COTDUserImage::Vector::iterator iter = this->userImages.begin(); iter < this->userImages.end(); ++iter)
+    {
+        inf << "getSavedAt = " << iter->getSavedAt() << endl;
+    }
+}
+
 
 void COTDParse::onHttpRequestCompletedQueryTopTenImages(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
 {
     bool succeeded = false;
-    std::string error;
+    std::strstream error;
     
     if (this->callbackQueryImages)
     {

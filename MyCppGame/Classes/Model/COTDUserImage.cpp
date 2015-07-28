@@ -8,7 +8,7 @@
 
 #import "COTDUserImage.h"
 
-COTDUserImage::COTDUserImage(const char *image, const char *savedAt)
+COTDUserImage::COTDUserImage(const std::string &image, const std::string &savedAt)
 : image(image), savedAt(savedAt)
 {
     
@@ -25,4 +25,9 @@ const std::string& COTDUserImage::getSavedAt() const
 }
 
 
-
+std::ostream& operator << ( std::ostream& osr, const COTDUserImage& userImage)
+{
+    osr << "image: [" << userImage.getImage() << "], "
+        << "savedAt: [" << userImage.getSavedAt();
+    return osr;
+}

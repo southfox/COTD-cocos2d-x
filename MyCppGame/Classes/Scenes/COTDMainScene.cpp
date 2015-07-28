@@ -110,9 +110,13 @@ void COTDMain::configureTitle()
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
     std::string title = "Capybara of the day: ";
-    COTDDate date;
+    COTDDate now;
     
-    title += date.D2Str();
+    title += now.month();
+    title += "-";
+    title += now.year();
+    title += "-";
+    title += now.day();
     
     auto label = Label::createWithTTF(title, "fonts/Marker Felt.ttf", 50);
     
@@ -213,7 +217,7 @@ void COTDMain::googleSearchCallback(bool succeeded,
                                     const std::string& link,
                                     const std::string& thumbnailLink,
                                     const std::string& title,
-                                    const std::string& error)
+                                    const std::strstream& error)
 {
     dbg << endl;
 #define DEFAULT_CONNECTION_TIMEOUT 8
@@ -257,7 +261,7 @@ void COTDMain::googleSearchCallback(bool succeeded,
 
 
 void COTDMain::parseQueryCallback(bool succeeded,
-                                  const std::string& error)
+                                  const std::strstream& error)
 {
     dbg << endl;
     

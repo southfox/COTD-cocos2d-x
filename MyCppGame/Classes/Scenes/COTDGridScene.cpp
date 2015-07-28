@@ -28,7 +28,7 @@ bool COTDGrid::init()
     {
         return false;
     }
-//    COTDGrid::queryParse();
+    COTDGrid::queryParse();
     
     COTDGrid::configureMenu();
     
@@ -83,7 +83,7 @@ void COTDGrid::queryParse()
 }
 
 void COTDGrid::parseQueryCallback(bool succeeded,
-                                  const std::string& error,
+                                  const std::strstream& error,
                                   const COTDImage::Vector& vector)
 {
     dbg << endl;

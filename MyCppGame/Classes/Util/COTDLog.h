@@ -27,7 +27,6 @@ protected:
    bool stdOutput;
    pid_t pid;
    pid_t vater;
-   std::string datetime;
 
 private:
    char* getName();
@@ -171,8 +170,8 @@ public:
    }
 
    const char* getLocalTime() {
-      COTDDate d((char *)NULL);
-      datetime = d.Str;
+      std::string datetime;
+      COTDDate d(NULL, datetime);
       return datetime.c_str();
    }
 };

@@ -31,6 +31,7 @@
  */
 
 class COTDDate {
+protected:
    // Atributos privados
    /// First Weeday of YearMin
    enum { Sunday = 0, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday } enumWeekDay;
@@ -43,23 +44,23 @@ class COTDDate {
    /// Estructura de Fecha
    struct timeval    tvDate;
    /// Centesimas: CC
-   std::string          C;       
+   std::string          c;
    /// Date: YYYYMMDD
-   std::string          D;       
+   std::string          d;
    /// Time: HHMISS
-   std::string          T;       
+   std::string          t;
    /// DateTime: YYYYMMDDHHMISS
-   std::string          DT;      
+   std::string          dt;
    /// DateTimeCent: YYYYMMDDHHMISSCC
-   std::string          DTC;     
-   
+   std::string          dtc;
+private:
    /**
     * Construir una fecha
     * @param pFmt
     * 
     * @return std::string
     */
-   std::string  Build(char *pFmt)
+   const std::string& build(const char *pFmt)
    {
       if (!gettimeofday(&tvDate, NULL))
          setOk();
@@ -71,15 +72,14 @@ class COTDDate {
       // Microsegundos / 10000 = Centesimas
       std::strstream sAux;
       sAux << tvDate.tv_usec/10000 << '\0';
-      C = sAux.str();
+      c = sAux.str();
 
       std::string  sBuf;
       sBuf = szBuf;
-      return sBuf;
+      return (const std::string& )sBuf;
    }
+
 public:
-   /// string para salidas
-   std::string    Str;
 
    bool status;
 
@@ -92,25 +92,23 @@ public:
    {
       status = false;
       // Dia: YYYYMMDD
-      D = Build((char*) "%Y%m%d");
+      d = build((char*) "%Y%m%d");
       // Hora: HHMISS
-      T = Build((char*) "%H%M%S");
+      t = build((char*) "%H%M%S");
       // Dia+Hora: YYYYMMDDHHMISS
-      DT = D;
-      DT += T;
+      dt = d;
+      dt += t;
 
       // Microsegundos / 10000 = Centesimas
       std::strstream sAux;
-       sAux << std::setfill('0') << std::setiosflags(std::ios::left) << std::setw(2) << tvDate.tv_usec/10000 << '\0';
-      C = sAux.str();
+      sAux << std::setfill('0') << std::setiosflags(std::ios::left) << std::setw(2) << tvDate.tv_usec/10000 << '\0';
+      c = sAux.str();
 
       // Dia+Hora+Centesimas: YYYYMMDDHHMISSCC
-      DTC = DT;
-	  DTC += ".";
-      DTC += C;
+      dtc = dt;
+      dtc += c;
 
-      Str = DTC.c_str();
-      assert(Str.length());
+      assert(dtc.length());
    }
 
    time_t toTime() { return tvDate.tv_sec; }
@@ -121,18 +119,18 @@ public:
     * Construir una fecha en base a un formato f
     * @param f formato
     */
-   COTDDate(char * f)
+   COTDDate(char * f, std::string &string)
    {
       // Si el formato es Nulo, obtiene una fecha con formato generico
 	  if (f != NULL) {
-		  Str = Build(f).c_str();
+		  string = build(f).c_str();
 	  } else {
-		  Str = Build((char *)"%Y-%m-%d %H:%M:%S").c_str();
-		  Str += ".";
-		  Str += C.c_str();
+		  string = build((char *)"%Y-%m-%d %H:%M:%S").c_str();
+		  string += ".";
+		  string += c.c_str();
 	  }
       // Nunca deberia suceder que el size es 0
-      assert(Str.length());
+      assert(string.length());
    }
    
 
@@ -144,25 +142,25 @@ public:
     */
    COTDDate(int year, int month, int day)
    {
-      if (validar(year, month, day) == true)
+      if (validate(year, month, day) == true)
       {
          setOk();
          /// Centesimas: CC
-         C = "00";       
+         c = "00";
          /// Date: YYYYMMDD
          {
             std::strstream sAux;
             sAux << year << month << day << '\0';
-            D = sAux.str();       
+            d = sAux.str();
          }
          /// Time: HHMISS
-         T = "000000";
+         t = "000000";
          /// DateTime: YYYYMMDDHHMISS
-         DT = D;
-         DT += T;
+         dt = d;
+         dt += t;
          /// DateTimeCent: YYYYMMDDHHMISSCC
-         DTC = DT;
-         DTC += C;
+         dtc = dt;
+         dtc += c;
       }
    }
    //@}
@@ -172,7 +170,7 @@ public:
    //@{
    /// Valida que la fecha se encuentre entre los rangos permitidos de Year,
    // y si es una fecha valida, segun Calendario Gregoriano
-   inline bool validar(int year, int month, int day)
+   inline bool validate(int year, int month, int day)
    {
       bool r = false;
       do {
@@ -263,19 +261,24 @@ public:
    }
 
    /// return Date
-   std::string D2Str()    { return D;   }
+   std::string date()    { return d;   }
    /// return Time
-   std::string T2Str()    { return T;   }
+   std::string time()    { return t;   }
    /// return Date-Time
-   std::string DT2Str()   { return DT;  }
+   std::string dateTime()   { return dt;  }
    /// return Date-Time-Cent.
-   std::string DTC2Str()  { return DTC; }
+   std::string dateTimeCent()  { return dtc; }
    /// return Cent
-   int Cent()  { return atoi(C.c_str()); }
+   int cent()  { return atoi(c.c_str()); }
+
+   int year() { return atoi(this->d.substr(0, 4).c_str()); }
+   int month() { return atoi(this->d.substr(5, 2).c_str()); }
+   int day() { return atoi(this->d.substr(7, 2).c_str());}
+
    //@}
 
    // Operador publico friend
-   friend std::ostream& operator << ( std::ostream& os, COTDDate d ) { os << d.Str; return os; }
+   friend std::ostream& operator << ( std::ostream& os, COTDDate d ) { os << d.dateTimeCent(); return os; }
 };
 
 
