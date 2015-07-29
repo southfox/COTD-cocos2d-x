@@ -8,6 +8,10 @@
 
 #import "COTDUserImage.h"
 
+COTDUserImage::COTDUserImage()
+{
+}
+
 COTDUserImage::COTDUserImage(const std::string &image, const std::string &savedAt)
 : image(image), savedAt(savedAt)
 {

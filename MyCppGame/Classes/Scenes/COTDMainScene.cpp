@@ -9,6 +9,8 @@ USING_NS_CC;
 #include "COTDImage.h"
 #include <assets-manager/Downloader.h>
 
+#include "COTDCommon.h"
+
 Scene* COTDMain::createScene()
 {
     // 'scene' is an autorelease object
@@ -36,7 +38,6 @@ bool COTDMain::init()
     
     dbg << endl;
 
-//    COTDMain::searchGoogle();
     COTDMain::queryParse();
 
     COTDMain::configureMenu();
@@ -217,7 +218,7 @@ void COTDMain::googleSearchCallback(bool succeeded,
                                     const std::string& link,
                                     const std::string& thumbnailLink,
                                     const std::string& title,
-                                    const std::strstream& error)
+                                    std::strstream& error)
 {
     dbg << endl;
 #define DEFAULT_CONNECTION_TIMEOUT 8
@@ -261,9 +262,23 @@ void COTDMain::googleSearchCallback(bool succeeded,
 
 
 void COTDMain::parseQueryCallback(bool succeeded,
-                                  const std::strstream& error)
+                                  std::strstream& error)
 {
     dbg << endl;
-    
+    if (error.pcount())
+    {
+        MessageBox((char*)error.str(), "Error");
+        return;
+    }
+    const char *currentUserImageUrl = COTDParse::sharedInstance()->currentUserImageUrl();
+    if (currentUserImageUrl == nullptr)
+    {
+        COTDMain::searchGoogle();
+    }
+    else
+    {
+        COTDMain::configureImage(currentUserImageUrl);
+    }
 }
+
 

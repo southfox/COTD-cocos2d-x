@@ -348,12 +348,15 @@ bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
             break;
         }
         
-        const std::string& savedAt = DICTOOL->getStringValue_json(resultsDict, P_iso);
+        const std::string& savedAtDateTime = DICTOOL->getStringValue_json(savedAtDict, P_iso);
         if (!image.length())
         {
             error << "empty " << P_results << "->" << P_savedAt << "->" << P_iso << '\0';
             break;
         }
+        
+        std::size_t positionT = savedAtDateTime.find_last_of("T");
+        const std::string& savedAt = savedAtDateTime.substr(0, positionT);
         
         COTDUserImage userImage(image, savedAt);
         dbg << "#" << iterator << ": " << userImage << endl;
@@ -426,6 +429,45 @@ void COTDParse::onHttpRequestCompletedQueryTopTenImages(cocos2d::network::HttpCl
     {
         inf << "getFullUrl = " << iter->getFullUrl() << endl;
     }
+}
+
+
+const std::pair<bool, const COTDUserImage &> COTDParse::userImage()
+{
+    const std::string & today = this->today();
+    for (COTDUserImage::Vector::iterator iter = this->userImages.begin(); iter < this->userImages.end(); ++iter)
+    {
+        if (iter->getSavedAt() == today)
+        {
+            return std::make_pair(true, *iter);
+        }
+    }
+    const auto userImage = COTDUserImage();
+    return std::make_pair(false, userImage);
+}
+
+const char * COTDParse::today() const
+{
+    std::string todayStr;
+    COTDDate((char*)"%F", todayStr);
+    return todayStr.c_str();
+}
+
+const char * COTDParse::currentUserImageUrl()
+{
+    const auto userImage = this->userImage();
+    if (!userImage.first)
+    {
+        return nullptr;
+    }
+    for (COTDImage::Vector::iterator iter = this->images.begin(); iter < this->images.end(); ++iter)
+    {
+        if (iter->getObjectId() == userImage.second.getImage())
+        {
+            return iter->getFullUrl().c_str();
+        }
+    }
+    return nullptr;
 }
 
 

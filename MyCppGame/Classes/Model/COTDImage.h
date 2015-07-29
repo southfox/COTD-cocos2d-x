@@ -22,6 +22,7 @@ private:
     
 public:
     
+    COTDImage();
     COTDImage(const std::string &objectId,
               const std::string &link,
               const std::string &thumbnail,

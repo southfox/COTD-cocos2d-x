@@ -83,7 +83,7 @@ void COTDGrid::queryParse()
 }
 
 void COTDGrid::parseQueryCallback(bool succeeded,
-                                  const std::strstream& error,
+                                  std::strstream& error,
                                   const COTDImage::Vector& vector)
 {
     dbg << endl;

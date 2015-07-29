@@ -8,6 +8,10 @@
 
 #include "COTDImage.h"
 
+COTDImage::COTDImage()
+{
+}
+
 COTDImage::COTDImage(const std::string &objectId,
                      const std::string &link,
                      const std::string &thumbnail,

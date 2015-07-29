@@ -27,12 +27,12 @@ private:
                               const std::string& link,
                               const std::string& thumbnailLink,
                               const std::string& title,
-                              const std::strstream& error);
+                              std::strstream& error);
 
     // Parse.com
     void queryParse();
     void parseQueryCallback(bool succeeded,
-                            const std::strstream& error);
+                            std::strstream& error);
 
     // a selector callback
     void menuLikeCallback(cocos2d::Ref* pSender);

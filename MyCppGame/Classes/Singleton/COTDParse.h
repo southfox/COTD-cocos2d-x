@@ -15,9 +15,9 @@
 #include "json/document.h"
 #include <strstream>
 
-typedef std::function<void(bool, const std::strstream&)> ccParseCallback;
-typedef std::function<void(bool, const std::strstream&, const COTDImage::Vector&)> ccImageVectorParseCallback;
-typedef std::function<void(bool, const std::strstream&, const COTDUserImage::Vector&)> ccUserImageVectorParseCallback;
+typedef std::function<void(bool, std::strstream&)> ccParseCallback;
+typedef std::function<void(bool, std::strstream&, const COTDImage::Vector&)> ccImageVectorParseCallback;
+typedef std::function<void(bool, std::strstream&, const COTDUserImage::Vector&)> ccUserImageVectorParseCallback;
 
 class COTDParse
 {
@@ -44,6 +44,8 @@ public:
     ccParseCallback callbackQueryImages;
     ccImageVectorParseCallback callbackQueryTopTenImages;
     ccParseCallback callbackQueryUserImages;
+
+    const char * currentUserImageUrl();
 
 protected:
     static COTDParse* _instance;
@@ -77,6 +79,10 @@ private:
 
     COTDImage::Vector images;
     COTDUserImage::Vector userImages;
+
+    const std::pair<bool, const COTDUserImage &> userImage();
+    
+    const char * today() const;
 
 };
 

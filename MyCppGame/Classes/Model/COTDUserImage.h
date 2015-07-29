@@ -22,6 +22,7 @@ protected:
     
 public:
     
+    COTDUserImage();
     COTDUserImage(const std::string &image, const std::string &savedAt);
     
     const std::string& getImage() const;

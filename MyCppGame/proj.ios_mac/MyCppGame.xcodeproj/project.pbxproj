@@ -74,6 +74,8 @@
 		956C1FBD1B6391C700C496A9 /* COTDDateType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 956C1FB81B6391C700C496A9 /* COTDDateType.cpp */; };
 		956C1FBE1B6391C700C496A9 /* COTDLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 956C1FBA1B6391C700C496A9 /* COTDLog.cpp */; };
 		956C1FBF1B6391C700C496A9 /* COTDLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 956C1FBA1B6391C700C496A9 /* COTDLog.cpp */; };
+		95F07D8E1B6881D0004B3AA2 /* COTDCommon.mm in Sources */ = {isa = PBXBuildFile; fileRef = 95F07D8D1B6881D0004B3AA2 /* COTDCommon.mm */; };
+		95F07D8F1B6881D0004B3AA2 /* COTDCommon.mm in Sources */ = {isa = PBXBuildFile; fileRef = 95F07D8D1B6881D0004B3AA2 /* COTDCommon.mm */; };
 		95F978CB1B64D4A8008DB7D2 /* COTDParse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 95F978C91B64D4A8008DB7D2 /* COTDParse.cpp */; };
 		95F978CC1B64D4A8008DB7D2 /* COTDParse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 95F978C91B64D4A8008DB7D2 /* COTDParse.cpp */; };
 		BF171245129291EC00B8313A /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF170DB012928DE900B8313A /* OpenGLES.framework */; };
@@ -182,6 +184,8 @@
 		956C1FB91B6391C700C496A9 /* COTDDateType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = COTDDateType.h; sourceTree = "<group>"; };
 		956C1FBA1B6391C700C496A9 /* COTDLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = COTDLog.cpp; sourceTree = "<group>"; };
 		956C1FBB1B6391C700C496A9 /* COTDLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = COTDLog.h; sourceTree = "<group>"; };
+		95F07D8C1B6881D0004B3AA2 /* COTDCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = COTDCommon.h; sourceTree = "<group>"; };
+		95F07D8D1B6881D0004B3AA2 /* COTDCommon.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = COTDCommon.mm; sourceTree = "<group>"; };
 		95F978C91B64D4A8008DB7D2 /* COTDParse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = COTDParse.cpp; sourceTree = "<group>"; };
 		95F978CA1B64D4A8008DB7D2 /* COTDParse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = COTDParse.h; sourceTree = "<group>"; };
 		BF170DB012928DE900B8313A /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
@@ -421,6 +425,8 @@
 				956C1FB81B6391C700C496A9 /* COTDDateType.cpp */,
 				956C1FBB1B6391C700C496A9 /* COTDLog.h */,
 				956C1FBA1B6391C700C496A9 /* COTDLog.cpp */,
+				95F07D8C1B6881D0004B3AA2 /* COTDCommon.h */,
+				95F07D8D1B6881D0004B3AA2 /* COTDCommon.mm */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -580,6 +586,7 @@
 				503AE10017EB989F00D1A890 /* AppController.mm in Sources */,
 				956C1FBE1B6391C700C496A9 /* COTDLog.cpp in Sources */,
 				956C1F981B63831300C496A9 /* COTDMainScene.cpp in Sources */,
+				95F07D8E1B6881D0004B3AA2 /* COTDCommon.mm in Sources */,
 				956C1FA11B63833E00C496A9 /* COTDUserImage.cpp in Sources */,
 				956C1F9F1B63833E00C496A9 /* COTDImage.cpp in Sources */,
 				503AE10217EB989F00D1A890 /* RootViewController.mm in Sources */,
@@ -598,6 +605,7 @@
 				956C1FBD1B6391C700C496A9 /* COTDDateType.cpp in Sources */,
 				956C1FBF1B6391C700C496A9 /* COTDLog.cpp in Sources */,
 				95F978CC1B64D4A8008DB7D2 /* COTDParse.cpp in Sources */,
+				95F07D8F1B6881D0004B3AA2 /* COTDCommon.mm in Sources */,
 				503AE10517EB98FF00D1A890 /* main.cpp in Sources */,
 				956C1FA01B63833E00C496A9 /* COTDImage.cpp in Sources */,
 				956C1F971B63831300C496A9 /* COTDGridScene.cpp in Sources */,

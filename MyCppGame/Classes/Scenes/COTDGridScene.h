@@ -19,7 +19,7 @@ private:
     
     void queryParse();
     void parseQueryCallback(bool succeeded,
-                            const std::strstream& error,
+                            std::strstream& error,
                             const COTDImage::Vector& vector);
     
     // a selector callback

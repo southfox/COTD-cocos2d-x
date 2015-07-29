@@ -12,7 +12,7 @@
 #include "network/HttpClient.h"
 #include <strstream>
 
-typedef std::function<void(bool, const std::string &, const std::string&, const std::string&, const std::strstream&)> ccGoogleCallback;
+typedef std::function<void(bool, const std::string &, const std::string&, const std::string&, std::strstream&)> ccGoogleCallback;
 
 class COTDGoogle
 {
