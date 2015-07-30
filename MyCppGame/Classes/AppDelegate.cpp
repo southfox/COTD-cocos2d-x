@@ -1,5 +1,6 @@
 #include "AppDelegate.h"
 #include "COTDMainScene.h"
+#include "COTDParse.h"
 #define S_LOG
 #include "COTDLog.h"
 

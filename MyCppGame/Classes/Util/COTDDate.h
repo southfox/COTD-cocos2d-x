@@ -110,6 +110,15 @@ public:
 
       assert(dtc.length());
    }
+    
+    COTDDate(int days)
+    {
+        gettimeofday(&tvDate, NULL);
+        struct tm *ts = localtime(&(tvDate.tv_sec));
+        ts->tm_mday += days;
+        mktime(ts); /* Normalise ts */
+//        strftime(yearchar, sizeof(yearchar), "%Y%m%d", ts);
+    }
 
    time_t toTime() { return tvDate.tv_sec; }
 
@@ -272,8 +281,8 @@ public:
    int cent()  { return atoi(c.c_str()); }
 
    int year() { return atoi(this->d.substr(0, 4).c_str()); }
-   int month() { return atoi(this->d.substr(5, 2).c_str()); }
-   int day() { return atoi(this->d.substr(7, 2).c_str());}
+   int month() { return atoi(this->d.substr(4, 2).c_str()); }
+   int day() { return atoi(this->d.substr(6, 2).c_str());}
 
    //@}
 
