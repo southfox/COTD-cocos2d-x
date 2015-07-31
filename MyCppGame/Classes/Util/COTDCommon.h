@@ -12,8 +12,11 @@
 
 #if CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_IOS
 
-void CC_DLL COTDMessageBox(const char * title, const char * msg);
+CC_DLL void COTDMessageBox(const char * title, const char * msg);
 
 #endif
 
+
 #endif // __CC_COMMON_H__
+
+CC_DLL const char *encodeUrl(const char *url);

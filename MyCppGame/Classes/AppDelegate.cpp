@@ -3,6 +3,7 @@
 #include "COTDParse.h"
 #define S_LOG
 #include "COTDLog.h"
+#include "COTDParse.h"
 
 USING_NS_CC;
 
@@ -63,6 +64,7 @@ void AppDelegate::applicationDidEnterBackground() {
 
     // if you use SimpleAudioEngine, it must be pause
     // SimpleAudioEngine::getInstance()->pauseBackgroundMusic();
+    COTDParse::destroyInstance();
 }
 
 // this function will be called when the app is active again
@@ -71,5 +73,5 @@ void AppDelegate::applicationWillEnterForeground() {
 
     // if you use SimpleAudioEngine, it must resume here
     // SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
-
+    COTDParse::sharedInstance();    
 }

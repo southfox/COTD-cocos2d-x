@@ -111,14 +111,22 @@ public:
       assert(dtc.length());
    }
     
-    COTDDate(int days)
+    COTDDate(int increment)
     {
         gettimeofday(&tvDate, NULL);
         struct tm *ts = localtime(&(tvDate.tv_sec));
-        ts->tm_mday += days;
-        mktime(ts); /* Normalise ts */
-//        strftime(yearchar, sizeof(yearchar), "%Y%m%d", ts);
+        ts->tm_mday += increment;
+        ; /* Normalise ts */
+        tvDate.tv_sec = mktime(ts);
     }
+    
+   std::string format(const char * pFmt)
+   {
+       char szBuf[128];
+       strftime(szBuf, 128, pFmt, localtime(&(tvDate.tv_sec)));
+       std::string str(szBuf);
+       return str;
+   }
 
    time_t toTime() { return tvDate.tv_sec; }
 
@@ -128,7 +136,7 @@ public:
     * Construir una fecha en base a un formato f
     * @param f formato
     */
-   COTDDate(char * f, std::string &string)
+   COTDDate(const char * f, std::string &string)
    {
       // Si el formato es Nulo, obtiene una fecha con formato generico
 	  if (f != NULL) {

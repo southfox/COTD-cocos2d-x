@@ -23,6 +23,13 @@
 #include "cocostudio/DictionaryHelper.h"
 using namespace cocostudio;
 
+//
+//#include <cctype>
+//#include <iomanip>
+//#include <sstream>
+//#include <string>
+//
+//using namespace std;
 #define COTDIMAGE_URL                       "https://api.parse.com/1/classes/COTDImage"
 #define COTDUSERIMAGE_URL                   "https://api.parse.com/1/classes/COTDUserImage"
 #define LOGIN_URL                           "https://api.parse.com/1/users"
@@ -31,6 +38,7 @@ using namespace cocostudio;
 #define PARSEAPPLICATIONID_HEADER_VALUE     "4w57EiBsbDCULkdlP5q1Q0R5bLPDupCbokbNT4KU"
 #define PARSERESTAPIKEY_HEADER_VALUE        "IbCj3m1TlWMag98nQDDkv1nXUAvMN7PW6fNsbMYP"
 #define PARSEREVOCABLESESSION_HEADER_FIELD  "X-Parse-Revocable-Session"
+#define CONFIGURATION_COTD_FILE             "cotd.plist"
 
 #include "COTDParse.h"
 
@@ -46,13 +54,31 @@ COTDParse* COTDParse::sharedInstance()
 
 COTDParse::~COTDParse()
 {
-    delete _instance;
+    auto fu = cocos2d::FileUtils::getInstance();
+    std::string plistPath = fu->getWritablePath();
+    plistPath += "/";
+    plistPath += CONFIGURATION_COTD_FILE;
+    fu->writeToFile(this->configMap, plistPath);
+}
+
+void COTDParse::destroyInstance()
+{
+    CC_SAFE_DELETE(_instance);
 }
 
 
 COTDParse::COTDParse()
 {
     dbg << endl;
+    
+    auto fu = cocos2d::FileUtils::getInstance();
+    std::string plistPath = fu->getWritablePath();
+    plistPath += CONFIGURATION_COTD_FILE;
+    if (fu->isFileExist(plistPath))
+    {
+        this->configMap = fu->getValueMapFromFile(plistPath);
+    }
+
 }
 
 std::string COTDParse::createUUID()
@@ -64,23 +90,14 @@ std::string COTDParse::createUUID()
     return s;
 }
 
-void COTDParse::setObjectForKey(const std::string &object, const std::string& key)
-{
-    auto conf = cocos2d::Configuration::getInstance();
-    cocos2d::Value value = cocos2d::Value(object);
-    dbg << "v = " << value.asString() << endl;
-    conf->setValue(key, value);
-}
 
-const char * COTDParse::getObjectForKey(const std::string& key)
+const cocos2d::Value & COTDParse::atConfigKey(const std::string& key) const
 {
-    auto conf = cocos2d::Configuration::getInstance();
-    cocos2d::Value value = conf->getValue(key);
-    if (value.isNull())
+    if (!this->configMap.size())
     {
-        return nullptr;
+        return cocos2d::Value::Null;
     }
-    return value.asString().c_str();
+    return this->configMap.at(key);
 }
 
 
@@ -89,40 +106,23 @@ const char * COTDParse::getObjectForKey(const std::string& key)
 #define kObjectIdKeyConfiguration "com.cotd.objectId"
 #define kSessionTokenKeyConfiguration "com.cotd.sessionToken"
 
-const char *COTDParse::getUsername()
+std::string COTDParse::getUsername() const
 {
-    return this->getObjectForKey(kUsernameKeyConfiguration);
+    return this->atConfigKey(kUsernameKeyConfiguration).asString();
 }
-void COTDParse::setUsername(const std::string &username)
+std::string COTDParse::getUUID() const
 {
-    this->setObjectForKey(username, kUsernameKeyConfiguration);
-}
-
-void COTDParse::setUUID(const std::string &uuid)
-{
-    this->setObjectForKey(uuid, kUUIDKeyConfiguration);
-}
-const char *COTDParse::getUUID()
-{
-    return this->getObjectForKey(kUUIDKeyConfiguration);
+    return this->atConfigKey(kUUIDKeyConfiguration).asString();
 }
 
-void COTDParse::setObjectId(const std::string &objectId)
+std::string COTDParse::getObjectId() const
 {
-    this->setObjectForKey(objectId, kObjectIdKeyConfiguration);
-}
-const char *COTDParse::getObjectId()
-{
-    return this->getObjectForKey(kObjectIdKeyConfiguration);
+    return this->atConfigKey(kObjectIdKeyConfiguration).asString();
 }
 
-void COTDParse::setSessionToken(const std::string &sessionToken)
+std::string COTDParse::getSessionToken() const
 {
-    this->setObjectForKey(sessionToken, kSessionTokenKeyConfiguration);
-}
-const char *COTDParse::getSessionToken()
-{
-    return this->getObjectForKey(kSessionTokenKeyConfiguration);
+    return this->atConfigKey(kSessionTokenKeyConfiguration).asString();
 }
 
 
@@ -133,14 +133,14 @@ void COTDParse::anonymousSignin()
     
     request->setUrl(LOGIN_URL);
     request->setRequestType(cocos2d::network::HttpRequest::Type::POST);
-    const char *uuid = this->getUUID();
-    if (uuid == nullptr)
+    std::string uuid = this->getUUID();
+    if (!uuid.length())
     {
-        uuid = this->createUUID().c_str();
-        this->setUUID(uuid);
+        uuid = this->createUUID();
+        this->configMap[kUUIDKeyConfiguration] = uuid;
     }
     std::strstream buf;
-    buf << "{ \"authData\": { \"anonymous\": { \"id\": \"" << uuid << "\" } } }" << '\0';
+    buf << "{ \"authData\": { \"anonymous\": { \"id\": \"" << uuid.c_str() << "\" } } }" << '\0';
     inf << buf.str() << endl;
     request->setRequestData(buf.str(), buf.pcount());
     std::vector<std::string> headers;
@@ -184,6 +184,40 @@ void COTDParse::queryTopTenImages(const ccImageVectorParseCallback& callback)
     this->queryImages(CC_CALLBACK_2(COTDParse::onHttpRequestCompletedQueryTopTenImages, this), 10, true);
 }
 
+void COTDParse::updateUserImage(const COTDImage &image, const ccParseCallback& callback)
+{
+    this->callbackUpdateImage = callback;
+    this->updateUserImage(image, CC_CALLBACK_2(COTDParse::onHttpRequestCompletedUpdateUserImage, this));
+}
+
+void COTDParse::updateImage(const std::string& imageUrl, const std::string& thumbnailUrl, const std::string& title, const std::string& searchTerm, const ccParseCallback& callback)
+{
+    this->callbackUpdateImage = callback;
+
+    auto image = this->isImageRepeated(imageUrl);
+    if (!image.first)
+    {
+        this->updateUserImage(image.second, callback);
+    }
+    else
+    {
+        this->updateImage(imageUrl, thumbnailUrl, title, searchTerm, CC_CALLBACK_2(COTDParse::onHttpRequestCompletedUpdateImage, this));
+    }
+
+}
+
+const std::pair<bool, const COTDImage &> COTDParse::isImageRepeated(const std::string& imageUrl)
+{
+    for (COTDImage::Vector::iterator image = this->images.begin(); image < this->images.end(); ++image)
+    {
+        if (image->getFullUrl() == imageUrl)
+        {
+            return std::make_pair(true, *image);
+        }
+    }
+    const auto image = COTDImage();
+    return std::make_pair(false, image);
+}
 
 const char *COTDParse::applicationId()
 {
@@ -217,8 +251,10 @@ void COTDParse::queryImages(const cocos2d::network::ccHttpRequestCallback& callb
     }
     aux << '\0';
 
-    dbg << "Url = [" << aux.str() << "]" << endl;
-    request->setUrl(aux.str());
+    const char *urlEncoded = encodeUrl(aux.str());
+    dbg << "Url = [" << urlEncoded << "]" << endl;
+    request->setUrl(urlEncoded);
+
     request->setRequestType(cocos2d::network::HttpRequest::Type::GET);
 
     std::vector<std::string> headers;
@@ -235,17 +271,25 @@ void COTDParse::queryImages(const cocos2d::network::ccHttpRequestCallback& callb
 void COTDParse::queryUserImages(const cocos2d::network::ccHttpRequestCallback& callback)
 {
     cocos2d::network::HttpRequest* request = new (std::nothrow) cocos2d::network::HttpRequest();
-    
-    std::strstream aux;
-    aux << COTDUSERIMAGE_URL << "?user=" << this->getObjectId();
-    COTDDate now;
+
     COTDDate aWeekAgo(-7);
-//    COTDDate aWeekAgo(now.year(), now.month(), now.day()-7);
-    aux << "&where={\"savedAt\":{\"$gte\":" << aWeekAgo << "}}";
-    aux << '\0';
+    std::string aWeekAgoStr = aWeekAgo.format((char*)"%FT%T");
     
-    dbg << "Url = [" << aux.str() << "]" << endl;
-    request->setUrl(aux.str());
+    std::string objectId = this->getObjectId();
+    objectId = "KZ35OVN70M";
+    std::strstream aux;
+    aux << COTDUSERIMAGE_URL
+        << "?where={\"user\":{\"__type\":\"Pointer\",\"className\":\"_User\",\"objectId\":\""
+        << objectId.c_str()
+        << "\"},\"savedAt\":{\"$gte\":{\"__type\":\"Date\",\"iso\":\""
+        << aWeekAgoStr
+        << "\"}}}"
+        << '\0';
+    
+    const char *urlEncoded = encodeUrl(aux.str());
+    
+    dbg << "Url = [" << urlEncoded << "]" << endl;
+    request->setUrl(urlEncoded);
     request->setRequestType(cocos2d::network::HttpRequest::Type::GET);
     
     std::vector<std::string> headers;
@@ -259,6 +303,76 @@ void COTDParse::queryUserImages(const cocos2d::network::ccHttpRequestCallback& c
     request->release();
 }
 
+
+//this->updateImage(imageUrl, thumbnailUrl, title, searchTerm, CC_CALLBACK_2(COTDParse::onHttpRequestCompletedUpdateImage, this));
+
+void COTDParse::updateImage(const std::string& imageUrl, const std::string& thumbnailUrl, const std::string& title, const std::string& searchTerm, const cocos2d::network::ccHttpRequestCallback& callback)
+{
+    cocos2d::network::HttpRequest* request = new (std::nothrow) cocos2d::network::HttpRequest();
+    
+    const char *urlEncoded = encodeUrl(COTDIMAGE_URL);
+    
+    dbg << "Url = [" << urlEncoded << "]" << endl;
+    request->setUrl(urlEncoded);
+    request->setRequestType(cocos2d::network::HttpRequest::Type::POST);
+    
+    std::vector<std::string> headers;
+    headers.push_back(this->applicationId());
+    headers.push_back(this->apiKey());
+    request->setHeaders(headers);
+    
+    std::strstream aux;
+    aux << "{"
+        << "\"fullUrl\": \"" << imageUrl << "\","
+        << "\"imageTitle\": \"" << title << "\","
+        << "\"likes\": 0,"
+        << "\"thumbnailUrl\": \"" << thumbnailUrl << "\""
+        << "}"
+        << '\0';
+
+    dbg << "Data = [" << aux << "]" << endl;
+    
+    request->setRequestData(aux.str(), aux.pcount());
+    
+    request->setResponseCallback(callback);
+    request->setTag("POST COTD_IMAGE");
+    cocos2d::network::HttpClient::getInstance()->send(request);
+    request->release();
+}
+
+
+void COTDParse::updateUserImage(const COTDImage &image, const cocos2d::network::ccHttpRequestCallback& callback)
+{
+    cocos2d::network::HttpRequest* request = new (std::nothrow) cocos2d::network::HttpRequest();
+    
+    const char *urlEncoded = encodeUrl(COTDUSERIMAGE_URL);
+    
+    dbg << "Url = [" << urlEncoded << "]" << endl;
+    request->setUrl(urlEncoded);
+    request->setRequestType(cocos2d::network::HttpRequest::Type::POST);
+    
+    std::vector<std::string> headers;
+    headers.push_back(this->applicationId());
+    headers.push_back(this->apiKey());
+    request->setHeaders(headers);
+    
+    COTDDate now;
+    std::string nowStr = now.format((char*)"%FT%T");
+    
+    std::strstream aux;
+    aux << "{\"image\":{\"__type\":\"Pointer\",\"className\":\"COTDImage\",\"objectId\":\"" << image.getObjectId().c_str() << "\"},"
+        << "\"savedAt\":{\"__type\":\"Date\",\"iso\":\"" << nowStr.c_str() << "\"},"
+        << "\"user\":{\"__type\":\"Pointer\",\"className\":\"_User\",\"objectId\":\"" << this->getObjectId() << "\"}}" << '\0';
+
+    dbg << "Data = [" << aux.str() << "]" << endl;
+
+    request->setRequestData(aux.str(), aux.pcount());
+    
+    request->setResponseCallback(callback);
+    request->setTag("GET COTD_USER_IMAGE");
+    cocos2d::network::HttpClient::getInstance()->send(request);
+    request->release();
+}
 
 
 bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
@@ -331,7 +445,6 @@ int COTDParse::countElements(std::strstream& error,
 }
     
 bool COTDParse::parseResponseFromAnonymousSignin(cocos2d::network::HttpResponse *response,
-                                                 std::string& id,
                                                  std::string& objectId,
                                                  std::string& sessionToken,
                                                  std::string& username,
@@ -342,29 +455,6 @@ bool COTDParse::parseResponseFromAnonymousSignin(cocos2d::network::HttpResponse 
     {
         return false;
     }
-//    if (!DICTOOL->checkObjectExist_json(json, P_authData))
-//    {
-//        error << "not exist " << P_authData << '\0';
-//        return false;
-//    }
-//    const rapidjson::Value& authData = DICTOOL->getSubDictionary_json(json, P_authData);
-//    if (authData.IsNull())
-//    {
-//        error << "empty " << P_authData << '\0';
-//        return false;
-//    }
-//    const rapidjson::Value& anonymous = DICTOOL->getSubDictionary_json(authData, P_anonymous);
-//    if (anonymous.IsNull())
-//    {
-//        error << "empty " << P_authData << "->" << P_anonymous << '\0';
-//        return false;
-//    }
-//    id = DICTOOL->getStringValue_json(anonymous, P_id);
-//    if (!id.length())
-//    {
-//        error << "empty " << P_authData << "->" << P_anonymous << "->" << P_id << '\0';
-//        return false;
-//    }
     objectId = DICTOOL->getStringValue_json(json, P_objectId);
     if (!objectId.length())
     {
@@ -461,6 +551,29 @@ bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
 
 bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
                               std::strstream& error,
+                              COTDImage &image)
+{
+    rapidjson::Document json;
+    if (!this->parseResponse(response, error, json))
+    {
+        return false;
+    }
+    std::string objectId = DICTOOL->getStringValue_json(json, P_objectId);
+    if (!objectId.length())
+    {
+        error << "empty " << P_objectId << '\0';
+        return false;
+    }
+    
+    
+
+    return false;
+}
+
+
+
+bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
+                              std::strstream& error,
                               COTDUserImage::Vector &vector)
 {
     rapidjson::Document json;
@@ -537,20 +650,17 @@ void COTDParse::onHttpRequestCompletedAnonymousSignin(cocos2d::network::HttpClie
 {
     bool succeeded = false;
     std::strstream error;
-    std::string id;
     std::string objectId;
     std::string sessionToken;
     std::string username;
 
-    succeeded = this->parseResponseFromAnonymousSignin(response, id, objectId, sessionToken, username, error);
+    succeeded = this->parseResponseFromAnonymousSignin(response, objectId, sessionToken, username, error);
     
     if (succeeded)
     {
-        this->setUsername(username);
-        this->setUUID(id);
-        this->setObjectId(objectId);
-        this->setSessionToken(sessionToken);
-        this->setUsername(username);
+        this->configMap[kObjectIdKeyConfiguration] = objectId;
+        this->configMap[kSessionTokenKeyConfiguration] = sessionToken;
+        this->configMap[kUsernameKeyConfiguration] = username;
         
         this->queryImages();
     }
@@ -597,6 +707,38 @@ void COTDParse::onHttpRequestCompletedQueryUserImages(cocos2d::network::HttpClie
     }
 }
 
+void COTDParse::onHttpRequestCompletedUpdateUserImage(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
+{
+    bool succeeded = false;
+    std::strstream error;
+    
+    if (this->callbackUpdateUserImage)
+    {
+        this->callbackUpdateUserImage(succeeded, error);
+    }
+}
+
+void COTDParse::onHttpRequestCompletedUpdateImage(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
+{
+    bool succeeded = false;
+    std::strstream error;
+    
+    if (this->callbackUpdateImage)
+    {
+        
+        if (succeeded)
+        {
+            COTDImage image;
+            
+            this->parseResponse(response, error, );
+            this->updateUserImage(image, this->callbackUpdateImage);
+        }
+        else
+        {
+            this->callbackUpdateImage(succeeded, error);
+        }
+    }
+}
 
 void COTDParse::onHttpRequestCompletedQueryTopTenImages(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
 {
@@ -655,4 +797,20 @@ const char * COTDParse::currentUserImageUrl()
     return nullptr;
 }
 
-
+bool COTDParse::isLinkRepeated(const std::string& fullUrl)
+{
+    for (COTDUserImage::Vector::iterator userImage = this->userImages.begin(); userImage < this->userImages.end(); ++userImage)
+    {
+        for (COTDImage::Vector::iterator image = this->images.begin(); image < this->images.end(); ++image)
+        {
+            if (image->getObjectId() == userImage->getImage())
+            {
+                if (image->getFullUrl() == fullUrl)
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}

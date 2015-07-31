@@ -42,6 +42,10 @@ private:
     void onError(const cocos2d::extension::Downloader::Error &error);
     void onProgress(double total, double downloaded, const std::string &url, const std::string &customId);
     void onSuccess(const std::string &srcUrl, const std::string &storagePath, const std::string &customId);
+    void onUpdateImage(bool succeeded,
+                                 std::strstream& error);
+    
+    void download();
 
 public:
     // there's no 'id' in cpp, so we recommend returning the class instance pointer

@@ -46,3 +46,11 @@ void COTDMessageBox(const char * title, const char * msg)
 }
 
 #endif
+
+
+const char *encodeUrl(const char *url)
+{
+    NSString *urlString = [NSString stringWithUTF8String:url];
+    urlString = [urlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    return [urlString UTF8String];
+}
