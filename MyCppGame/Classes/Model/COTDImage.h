@@ -23,13 +23,14 @@ private:
 public:
     
     COTDImage();
-    COTDImage(const std::string &objectId,
-              const std::string &link,
+    COTDImage(const std::string &link,
               const std::string &thumbnail,
               const std::string &title,
-              const int likes);
+              const int likes = 0,
+              const std::string &objectId = "");
     
     const std::string& getObjectId() const;
+    void setObjectId(const std::string &objectId);
     const std::string& getFullUrl() const;
     const std::string& getThumbnailUrl() const;
     const std::string& getImageTitle() const;

@@ -45,7 +45,7 @@ public:
     void queryImages();
     void queryUserImages();
     void queryTopTenImages(const ccImageVectorParseCallback& callback);
-    void updateUserImage(const COTDImage &image, const ccParseCallback& callback);
+    void updateUserImage(const COTDUserImage &userImage, const ccParseCallback& callback);
     void updateImage(const std::string& imageUrl, const std::string& thumbnailUrl, const std::string& title, const std::string& searchTerm, const ccParseCallback& callback);
 
     ccParseCallback callbackQueryImages;
@@ -53,7 +53,7 @@ public:
     ccParseCallback callbackUpdateImage;
     ccParseCallback callbackUpdateUserImage;
 
-    const char * currentUserImageUrl();
+    const COTDImage * currentUserImage();
     static void destroyInstance();
     bool isLinkRepeated(const std::string& fullUrl);
 
@@ -64,6 +64,9 @@ protected:
     COTDParse();
     
     cocos2d::ValueMap configMap;
+    
+    COTDImage sandboxImage;
+    COTDUserImage sandboxUserImage;
 
 private:
     bool parseResponseFromAnonymousSignin(cocos2d::network::HttpResponse *response,
@@ -91,8 +94,8 @@ private:
 
     void queryImages(const cocos2d::network::ccHttpRequestCallback& callback, int limit = 1000, bool onlyLikes = false);
     void queryUserImages(const cocos2d::network::ccHttpRequestCallback& callback);
-    void updateImage(const std::string& imageUrl, const std::string& thumbnailUrl, const std::string& title, const std::string& searchTerm, const cocos2d::network::ccHttpRequestCallback& callback);
-    void updateUserImage(const COTDImage &image, const cocos2d::network::ccHttpRequestCallback& callback);
+    void updateImage(const cocos2d::network::ccHttpRequestCallback& callback);
+    void updateUserImage(const COTDUserImage &userImage, const cocos2d::network::ccHttpRequestCallback& callback);
 
     void onHttpRequestCompletedAnonymousSignin(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
     void onHttpRequestCompletedQueryImages(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
@@ -105,11 +108,10 @@ private:
     const char * apiKey();
 
     COTDImage::Vector images;
+    COTDImage::Vector topTenImages;
     COTDUserImage::Vector userImages;
 
     const std::pair<bool, const COTDUserImage &> userImage();
-    
-    const char * today() const;
     
     void anonymousSignin();
     
@@ -120,7 +122,11 @@ private:
     std::string getSessionToken() const;
     std::string createUUID();
 
-    const std::pair<bool, const COTDImage &> isImageRepeated(const std::string& imageUrl);
+    const std::pair<bool, const COTDImage *> isImageRepeated(const std::string& imageUrl);
+    
+    const char * today() const;
+    const std::string now() const;
+
 
 };
 

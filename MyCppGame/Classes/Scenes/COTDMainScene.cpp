@@ -170,7 +170,7 @@ void COTDMain::searchGoogle()
 void COTDMain::queryParse()
 {
     std::string term;
-    COTDParse::sharedInstance()->query(std::bind(&COTDMain::parseQueryCallback,
+    COTDParse::sharedInstance()->query(std::bind(&COTDMain::onUpdateImage,
                                                  this,
                                                  std::placeholders::_1,
                                                  std::placeholders::_2));
@@ -216,15 +216,15 @@ void COTDMain::onSuccess(const std::string &srcUrl, const std::string &storagePa
 
 }
 
-void COTDMain::download()
+void COTDMain::download(const COTDImage *currentUserImage)
 {
 #define DEFAULT_CONNECTION_TIMEOUT 8
-#if 0
-    std::size_t found = link.find_last_of("/");
+    std::size_t found = currentUserImage->getFullUrl().find_last_of("/");
     FileUtils* fu = FileUtils::getInstance();
     std::string storagePath = fu->getWritablePath();
-    
-    storagePath += link.substr(found+1);
+    storagePath += currentUserImage->getObjectId();
+    storagePath += "_";
+    storagePath += currentUserImage->getFullUrl().substr(found+1);
     
     if (fu->isFileExist(storagePath))
     {
@@ -254,24 +254,9 @@ void COTDMain::download()
                                                    std::placeholders::_2,
                                                    std::placeholders::_3));
     
-    this->downloader->downloadAsync(link, storagePath);
-#endif
+    this->downloader->downloadAsync(currentUserImage->getFullUrl(), storagePath);
 }
-#if 0
-if ([[COTDParse sharedInstance] isLinkRepeated:link])
-{
-    [COTDAlert alertWithFrame:sself.window.frame title:@"Warning" message:@"Result repeated. Random failed" leftTitle:@"Cancel" leftBlock:^{
-     
-     } rightTitle:@"Retry" rightBlock:^{
-     typeof(self) sself = wself;
-     [sself queryTerm];
-     }];
-}
-else
-{
-    [[COTDParse sharedInstance] updateImage:link thumbnailUrl:thumbnailLink title:title searchTerm:nil finishBlock:nil];
-}
-#endif
+
 void COTDMain::googleSearchCallback(bool succeeded,
                                     const std::string& link,
                                     const std::string& thumbnailLink,
@@ -296,25 +281,18 @@ void COTDMain::googleSearchCallback(bool succeeded,
     else
     {
         std::string searchTerm;
-        COTDParse::sharedInstance()->updateImage(link, thumbnailLink, title, searchTerm, std::bind(&COTDMain::onUpdateImage,
-                                                                                                   this,
-                                                                                                   std::placeholders::_1,
-                                                                                                   std::placeholders::_2));
-//        COTDMain::download();
+        COTDParse::sharedInstance()->updateImage(link, thumbnailLink, title, searchTerm,
+                                                 std::bind(&COTDMain::onUpdateImage,
+                                                           this,
+                                                           std::placeholders::_1,
+                                                           std::placeholders::_2));
     }
-    
-    
 }
+
+
 
 void COTDMain::onUpdateImage(bool succeeded,
                              std::strstream& error)
-{
-    
-}
-
-
-void COTDMain::parseQueryCallback(bool succeeded,
-                                  std::strstream& error)
 {
     dbg << endl;
     if (error.pcount())
@@ -322,14 +300,14 @@ void COTDMain::parseQueryCallback(bool succeeded,
         MessageBox((char*)error.str(), "Error");
         return;
     }
-    const char *currentUserImageUrl = COTDParse::sharedInstance()->currentUserImageUrl();
-    if (currentUserImageUrl == nullptr)
+    auto currentUserImage = COTDParse::sharedInstance()->currentUserImage();
+    if (currentUserImage == nullptr)
     {
         COTDMain::searchGoogle();
     }
     else
     {
-        COTDMain::configureImage(currentUserImageUrl);
+        COTDMain::download(currentUserImage);
     }
 }
 

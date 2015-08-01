@@ -12,22 +12,27 @@ COTDImage::COTDImage()
 {
 }
 
-COTDImage::COTDImage(const std::string &objectId,
-                     const std::string &link,
+COTDImage::COTDImage(const std::string &link,
                      const std::string &thumbnail,
                      const std::string &title,
-                     const int likes) :
-objectId(objectId),
+                     const int likes,
+                     const std::string &objectId) :
 fullUrl(link),
 thumbnailUrl(thumbnail),
 imageTitle(title),
-likes(likes)
+likes(likes),
+objectId(objectId)
 {
 }
 
 const std::string& COTDImage::getObjectId() const
 {
     return this->objectId;
+}
+
+void COTDImage::setObjectId(const std::string &objectId)
+{
+    this->objectId = objectId;
 }
 
 const std::string& COTDImage::getFullUrl() const

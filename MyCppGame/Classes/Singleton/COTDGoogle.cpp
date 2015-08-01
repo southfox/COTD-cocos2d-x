@@ -150,7 +150,7 @@ bool COTDGoogle::parseResponse(cocos2d::network::HttpResponse *response,
         return false;
     }
     const rapidjson::Value& image = DICTOOL->getSubDictionary_json(itemDic, P_Image);
-    if (!image.IsNull())
+    if (image.IsNull())
     {
         error << "empty " << P_Items << "->" << P_Image << '\0';
         return false;

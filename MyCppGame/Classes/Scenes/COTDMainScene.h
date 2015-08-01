@@ -6,6 +6,8 @@
 
 #include <strstream>
 
+class COTDImage;
+
 using namespace cocos2d;
 
 class COTDMain : public cocos2d::Layer
@@ -31,8 +33,6 @@ private:
 
     // Parse.com
     void queryParse();
-    void parseQueryCallback(bool succeeded,
-                            std::strstream& error);
 
     // a selector callback
     void menuLikeCallback(cocos2d::Ref* pSender);
@@ -45,7 +45,7 @@ private:
     void onUpdateImage(bool succeeded,
                                  std::strstream& error);
     
-    void download();
+    void download(const COTDImage *currentUserImage);
 
 public:
     // there's no 'id' in cpp, so we recommend returning the class instance pointer
