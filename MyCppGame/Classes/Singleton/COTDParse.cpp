@@ -19,7 +19,11 @@
 #include "COTDDate.h"
 #include "base/CCConfiguration.h"
 #include "COTDCommon.h"
+#if defined(ANDROID)
+#define encodeUrl(url) url
+#else
 #include <uuid/uuid.h>
+#endif
 #include "cocostudio/DictionaryHelper.h"
 using namespace cocostudio;
 
@@ -89,11 +93,15 @@ std::string COTDParse::configFileName()
 
 std::string COTDParse::createUUID()
 {
+#if !defined(ANDROID)
     uuid_t uuid;
     uuid_generate_random(uuid);
     char s[37];
     uuid_unparse_lower(uuid, s);
     return s;
+#else
+    return "055aa316-706f-4326-90fc-5db03520c2b6";
+#endif
 }
 
 

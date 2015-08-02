@@ -7,6 +7,7 @@
 //
 
 #include "COTDImage.h"
+#import <strstream>
 
 COTDImage::COTDImage()
 {
@@ -62,10 +63,20 @@ bool COTDImage::operator < (const COTDImage &other) const
 
 std::ostream& operator << ( std::ostream& osr, const COTDImage& image)
 {
+#if defined(ANDROID)
+    std::strstream buf;
+    buf << "objectId: [" << image.getObjectId() << "], "
+        << "fullUrl: [" << image.getFullUrl() << "], "
+        << "thumbnailUrl: [" << image.getThumbnailUrl() << "], "
+        << "imageTitle: [" << image.getImageTitle() << "], "
+        << "likes: [" << image.getLikes();
+    osr << buf.str();
+#else
     osr << "objectId: [" << image.getObjectId() << "], "
         << "fullUrl: [" << image.getFullUrl() << "], "
         << "thumbnailUrl: [" << image.getThumbnailUrl() << "], "
         << "imageTitle: [" << image.getImageTitle() << "], "
         << "likes: [" << image.getLikes();
+#endif
     return osr;
 }

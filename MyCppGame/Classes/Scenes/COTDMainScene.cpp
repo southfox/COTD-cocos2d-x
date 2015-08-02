@@ -1,4 +1,3 @@
-USING_NS_CC;
 
 #include "COTDMainScene.h"
 #include "COTDGridScene.h"

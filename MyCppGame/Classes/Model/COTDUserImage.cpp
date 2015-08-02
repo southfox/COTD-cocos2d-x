@@ -7,6 +7,7 @@
 //
 
 #import "COTDUserImage.h"
+#import <strstream>
 
 COTDUserImage::COTDUserImage()
 {
@@ -37,10 +38,16 @@ const std::string COTDUserImage::getDateSavedAt() const
     return savedAt;
 }
 
-
 std::ostream& operator << ( std::ostream& osr, const COTDUserImage& userImage)
 {
-    osr << "image: [" << userImage.getImage() << "], "
+#if defined(ANDROID)
+    std::strstream buf;
+    buf << "image: [" << userImage.getImage() << "], "
         << "savedAt: [" << userImage.getSavedAt();
+    osr << buf.str();
+#else
+    osr << "image: [" << userImage.getImage() << "], "
+    << "savedAt: [" << userImage.getSavedAt();
+#endif
     return osr;
 }

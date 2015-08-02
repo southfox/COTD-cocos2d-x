@@ -17,6 +17,9 @@ CC_DLL void COTDMessageBox(const char * title, const char * msg);
 #endif
 
 
+#ifndef ANDROID
+CC_DLL const char *encodeUrl(const char *url);
+#endif
+
 #endif // __CC_COMMON_H__
 
-CC_DLL const char *encodeUrl(const char *url);

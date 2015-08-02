@@ -60,7 +60,7 @@ private:
     * 
     * @return std::string
     */
-   const std::string& build(const char *pFmt)
+   std::string build(const char *pFmt)
    {
       if (!gettimeofday(&tvDate, NULL))
          setOk();
@@ -74,9 +74,9 @@ private:
       sAux << tvDate.tv_usec/10000 << '\0';
       c = sAux.str();
 
-      std::string  sBuf;
-      sBuf = szBuf;
-      return (const std::string& )sBuf;
+//      std::string  sBuf;
+//      sBuf = szBuf;
+       return szBuf;
    }
 
 public:

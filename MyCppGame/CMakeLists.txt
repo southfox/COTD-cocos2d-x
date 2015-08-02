@@ -111,17 +111,38 @@ include_directories(
   /usr/include/GLFW
   ${COCOS2D_ROOT}/cocos
   Classes
+  Classes/Model
+  Classes/Scenes
+  Classes/Singleton
+  Classes/Util
 )
 
 set(GAME_SRC
   Classes/AppDelegate.cpp
-  Classes/HelloWorldScene.cpp
+  Classes/Model/COTDImage.cpp
+  Classes/Model/COTDUserImage.cpp
+  Classes/Scenes/COTDGridScene.cpp
+  Classes/Scenes/COTDMainScene.cpp
+  Classes/Singleton/COTDGoogle.cpp
+  Classes/Singleton/COTDParse.cpp
+  Classes/Util/COTDCommon.cpp
+  Classes/Util/COTDDateType.cpp
+  Classes/Util/COTDLog.cpp
   ${PLATFORM_SPECIFIC_SRC}
 )
 
 set(GAME_HEADERS
   Classes/AppDelegate.h
-  Classes/HelloWorldScene.h
+  Classes/Model/COTDImage.h
+  Classes/Model/COTDUserImage.h
+  Classes/Scenes/COTDGridScene.h
+  Classes/Scenes/COTDMainScene.h
+  Classes/Singleton/COTDGoogle.h
+  Classes/Singleton/COTDParse.h
+  Classes/Util/COTDCommon.h
+  Classes/Util/COTDDate.h
+  Classes/Util/COTDDateType.h
+  Classes/Util/COTDLog.h
   ${PLATFORM_SPECIFIC_HEADERS}
 )
 

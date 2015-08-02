@@ -28,7 +28,7 @@ COTDLog::COTDLog()
 
 char* COTDLog::getName() {
    std::strstream Nombre;
-#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if !defined(ANDROID)
     cocos2d::FileUtils* fu = cocos2d::FileUtils::getInstance();
     Nombre << fu->getWritablePath();
     COTDDate d;
