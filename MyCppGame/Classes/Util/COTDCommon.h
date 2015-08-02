@@ -16,10 +16,11 @@ CC_DLL void COTDMessageBox(const char * title, const char * msg);
 
 #endif
 
+#endif // __CC_COMMON_H__
 
-#ifndef ANDROID
+
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_IOS
 CC_DLL const char *encodeUrl(const char *url);
 #endif
 
-#endif // __CC_COMMON_H__
 

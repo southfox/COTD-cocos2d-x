@@ -47,7 +47,7 @@ void COTDMessageBox(const char * title, const char * msg)
 
 #endif
 
-#ifndef ANDROID
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_IOS
 const char *encodeUrl(const char *url)
 {
     NSString *urlString = [NSString stringWithUTF8String:url];

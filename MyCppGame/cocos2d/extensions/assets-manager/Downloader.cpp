@@ -278,6 +278,7 @@ bool Downloader::prepareHeader(void *curl, const std::string &srcUrl) const
     curl_easy_setopt(curl, CURLOPT_URL, srcUrl.c_str());
     curl_easy_setopt(curl, CURLOPT_HEADER, 1);
     curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
     if (curl_easy_perform(curl) == CURLE_OK)
         return true;
     else
@@ -432,6 +433,8 @@ void Downloader::download(const std::string &srcUrl, const std::string &customId
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
     curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, LOW_SPEED_LIMIT);
     curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, LOW_SPEED_TIME);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
+
     
     CURLcode res = curl_easy_perform(curl);
     if (res != CURLE_OK)

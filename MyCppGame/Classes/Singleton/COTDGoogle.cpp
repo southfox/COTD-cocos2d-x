@@ -56,7 +56,7 @@ void COTDGoogle::queryTerm(const std::string& term, const int& start, const ccGo
     this->callback = callback;
     
     char aux[1000];
-    sprintf(aux, URLFORMAT, 1);
+    sprintf(aux, URLFORMAT, start);
     
     cocos2d::network::HttpRequest* request = new (std::nothrow) cocos2d::network::HttpRequest();
     request->setUrl(aux);

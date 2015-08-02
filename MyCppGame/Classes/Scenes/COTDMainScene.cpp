@@ -157,7 +157,7 @@ void COTDMain::configureMenu()
 void COTDMain::searchGoogle()
 {
     std::string term;
-    COTDGoogle::sharedInstance()->queryTerm(term, 1, std::bind(&COTDMain::googleSearchCallback,
+    COTDGoogle::sharedInstance()->queryTerm(term, COTDParse::sharedInstance()->currentStart(), std::bind(&COTDMain::googleSearchCallback,
                                                                this,
                                                                std::placeholders::_1,
                                                                std::placeholders::_2,
@@ -199,7 +199,11 @@ void COTDMain::menuCloseCallback(Ref* pSender)
 
 void COTDMain::onError(const cocos2d::extension::Downloader::Error &error)
 {
-    dbg << "error -> code:" << (int)error.code << ", message: " << error.message << endl;
+    std::strstream s;
+    auto currentUserImage = COTDParse::sharedInstance()->currentUserImage();
+    s << "error -> code:" << (int)error.code << ", message: " << error.message << ", url:" << currentUserImage->getFullUrl() << '\0';
+    dbg << s.str() << endl;
+    MessageBox(s.str(), "Error");
 }
 
 void COTDMain::onProgress(double total, double downloaded, const std::string &url, const std::string &customId)
@@ -234,7 +238,14 @@ void COTDMain::download(const COTDImage *currentUserImage)
     // File does not exist, download.
     
     this->downloader = std::make_shared<cocos2d::extension::Downloader>();
+//    getContentSize
+    long size = this->downloader->getContentSize(currentUserImage->getFullUrl());
+    dbg << "size = " << size << endl;
+//    this->downloader->
+//    curl_easy_setopt(_curl, CURLOPT_SSL_VERIFYPEER, 0L);
+
     this->downloader->setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
+//    this->downloader->prepareHeader(0, 0);
     
     this->downloader->setErrorCallback(std::bind(&COTDMain::onError,
                                                  this,

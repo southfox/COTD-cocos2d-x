@@ -18,11 +18,11 @@
 #include "COTDUserImage.h"
 #include "COTDDate.h"
 #include "base/CCConfiguration.h"
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_IOS
 #include "COTDCommon.h"
-#if defined(ANDROID)
-#define encodeUrl(url) url
-#else
 #include <uuid/uuid.h>
+#else
+#define encodeUrl(url) url
 #endif
 #include "cocostudio/DictionaryHelper.h"
 using namespace cocostudio;
@@ -846,17 +846,40 @@ bool COTDParse::isLinkRepeated(const std::string& fullUrl)
     return false;
 }
 
-const std::string COTDParse::now() const
+const std::string COTDParse::date(int n) const
 {
-    COTDDate now;
+    COTDDate now(n+2);
     std::string nowStr = now.format((char*)"%FT%T");
     return nowStr;
 }
 
+const std::string COTDParse::now() const
+{
+    return this->date(0);
+}
+
+const char * COTDParse::aWeekAgo() const
+{
+    auto now = this->date(-7);
+    std::size_t positionT = now.find_last_of("T");
+    const std::string aWeekAgoStr = now.substr(0, positionT);
+    return aWeekAgoStr.c_str();
+}
+
 const char * COTDParse::today() const
 {
-    std::string todayStr;
-    COTDDate((char*)"%F", todayStr);
+    auto now = this->now();
+    std::size_t positionT = now.find_last_of("T");
+    const std::string todayStr = now.substr(0, positionT);
     return todayStr.c_str();
 }
+
+int COTDParse::currentStart()
+{
+    int num = (int)this->userImages.size() + (int)this->images.size() + 1;
+    int r = num + arc4random()%15;
+    return r;
+}
+
+
 
