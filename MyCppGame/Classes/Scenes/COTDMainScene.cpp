@@ -291,8 +291,7 @@ void COTDMain::googleSearchCallback(bool succeeded,
 
 
 
-void COTDMain::onUpdateImage(bool succeeded,
-                             std::strstream& error)
+void COTDMain::onUpdateImage(bool succeeded, std::strstream& error)
 {
     dbg << endl;
     if (error.pcount())

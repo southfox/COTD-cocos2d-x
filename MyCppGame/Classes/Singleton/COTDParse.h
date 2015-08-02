@@ -69,6 +69,8 @@ protected:
     COTDUserImage sandboxUserImage;
 
 private:
+    std::string configFileName();
+
     bool parseResponseFromAnonymousSignin(cocos2d::network::HttpResponse *response,
                                           std::string& objectId,
                                           std::string& sessionToken,
@@ -90,7 +92,7 @@ private:
     
     bool parseResponse(cocos2d::network::HttpResponse *response,
                        std::strstream& error,
-                       COTDImage &image);
+                       std::string& objectId);
 
     void queryImages(const cocos2d::network::ccHttpRequestCallback& callback, int limit = 1000, bool onlyLikes = false);
     void queryUserImages(const cocos2d::network::ccHttpRequestCallback& callback);
@@ -98,6 +100,7 @@ private:
     void updateUserImage(const COTDUserImage &userImage, const cocos2d::network::ccHttpRequestCallback& callback);
 
     void onHttpRequestCompletedAnonymousSignin(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
+    void onHttpRequestCompletedLogout(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
     void onHttpRequestCompletedQueryImages(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
     void onHttpRequestCompletedQueryTopTenImages(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
     void onHttpRequestCompletedQueryUserImages(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
@@ -114,6 +117,7 @@ private:
     const std::pair<bool, const COTDUserImage &> userImage();
     
     void anonymousSignin();
+    void logout();
     
     const cocos2d::Value& atConfigKey(const std::string& key) const;
     std::string getUsername() const;

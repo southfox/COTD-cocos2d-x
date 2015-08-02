@@ -28,6 +28,15 @@ const std::string& COTDUserImage::getSavedAt() const
     return this->savedAt;
 }
 
+const std::string COTDUserImage::getDateSavedAt() const
+{
+    auto savedAtDateTime = this->getSavedAt();
+    std::size_t positionT = savedAtDateTime.find_last_of("T");
+    const std::string savedAt = savedAtDateTime.substr(0, positionT);
+
+    return savedAt;
+}
+
 
 std::ostream& operator << ( std::ostream& osr, const COTDUserImage& userImage)
 {

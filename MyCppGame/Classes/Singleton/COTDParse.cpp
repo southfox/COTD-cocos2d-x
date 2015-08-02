@@ -23,18 +23,13 @@
 #include "cocostudio/DictionaryHelper.h"
 using namespace cocostudio;
 
-//
-//#include <cctype>
-//#include <iomanip>
-//#include <sstream>
-//#include <string>
-//
-//using namespace std;
 #define COTDIMAGE_URL                       "https://api.parse.com/1/classes/COTDImage"
 #define COTDUSERIMAGE_URL                   "https://api.parse.com/1/classes/COTDUserImage"
 #define LOGIN_URL                           "https://api.parse.com/1/users"
+#define LOGOUT_URL                          "https://api.parse.com/1/logout"
 #define PARSEAPPLICATIONID_HEADER_FIELD     "X-Parse-Application-Id"
 #define PARSERESTAPIKEY_HEADER_FIELD        "X-Parse-REST-API-Key"
+#define PARSESESSIONTOKEN_HEADER_FIELD      "X-Parse-Session-Token"
 #define PARSEAPPLICATIONID_HEADER_VALUE     "4w57EiBsbDCULkdlP5q1Q0R5bLPDupCbokbNT4KU"
 #define PARSERESTAPIKEY_HEADER_VALUE        "IbCj3m1TlWMag98nQDDkv1nXUAvMN7PW6fNsbMYP"
 #define PARSEREVOCABLESESSION_HEADER_FIELD  "X-Parse-Revocable-Session"
@@ -55,15 +50,20 @@ COTDParse* COTDParse::sharedInstance()
 COTDParse::~COTDParse()
 {
     auto fu = cocos2d::FileUtils::getInstance();
-    std::string plistPath = fu->getWritablePath();
-    plistPath += "/";
-    plistPath += CONFIGURATION_COTD_FILE;
+    auto plistPath = this->configFileName();
     fu->writeToFile(this->configMap, plistPath);
 }
 
 void COTDParse::destroyInstance()
 {
+//    if (sharedInstance()->getSessionToken().length())
+//    {
+//        sharedInstance()->logout();
+//    }
+//    else
+//    {
     CC_SAFE_DELETE(_instance);
+//    }
 }
 
 
@@ -71,15 +71,21 @@ COTDParse::COTDParse()
 {
     dbg << endl;
     
+    auto plistPath = this->configFileName();
     auto fu = cocos2d::FileUtils::getInstance();
-    std::string plistPath = fu->getWritablePath();
-    plistPath += CONFIGURATION_COTD_FILE;
     if (fu->isFileExist(plistPath))
     {
         this->configMap = fu->getValueMapFromFile(plistPath);
     }
-
 }
+
+std::string COTDParse::configFileName()
+{
+    auto fu = cocos2d::FileUtils::getInstance();
+    auto plistPath = fu->getWritablePath() + CONFIGURATION_COTD_FILE;
+    return plistPath;
+}
+
 
 std::string COTDParse::createUUID()
 {
@@ -147,8 +153,27 @@ void COTDParse::anonymousSignin()
     headers.push_back(this->applicationId());
     headers.push_back(this->apiKey());
     request->setHeaders(headers);
-
+    
     request->setResponseCallback(CC_CALLBACK_2(COTDParse::onHttpRequestCompletedAnonymousSignin, this));
+    request->setTag("POST SIGN IN");
+    cocos2d::network::HttpClient::getInstance()->send(request);
+    request->release();
+}
+
+void COTDParse::logout()
+{
+    std::strstream error;
+    cocos2d::network::HttpRequest* request = new (std::nothrow) cocos2d::network::HttpRequest();
+    
+    request->setUrl(LOGOUT_URL);
+    request->setRequestType(cocos2d::network::HttpRequest::Type::POST);
+    std::vector<std::string> headers;
+    headers.push_back(this->applicationId());
+    headers.push_back(this->apiKey());
+    headers.push_back((std::string)PARSESESSIONTOKEN_HEADER_FIELD + ":" + this->getSessionToken());
+    request->setHeaders(headers);
+
+    request->setResponseCallback(CC_CALLBACK_2(COTDParse::onHttpRequestCompletedLogout, this));
     request->setTag("POST SIGN IN");
     cocos2d::network::HttpClient::getInstance()->send(request);
     request->release();
@@ -209,12 +234,11 @@ void COTDParse::updateImage(const std::string& imageUrl, const std::string& thum
 
 const std::pair<bool, const COTDImage *> COTDParse::isImageRepeated(const std::string& imageUrl)
 {
-    for (COTDImage::Vector::const_iterator image = this->images.begin(); image < this->images.end(); ++image)
+    for (const auto &image : this->images)
     {
-        if (image->getFullUrl() == imageUrl)
+        if (image.getFullUrl() == imageUrl)
         {
-            COTDImage *img = (COTDImage *)&*image;
-            return std::make_pair(true, img);
+            return std::make_pair(true, &image);
         }
     }
     return std::make_pair(false, nullptr);
@@ -222,19 +246,14 @@ const std::pair<bool, const COTDImage *> COTDParse::isImageRepeated(const std::s
 
 const char *COTDParse::applicationId()
 {
-    std::string header = PARSEAPPLICATIONID_HEADER_FIELD;
-    header += ":";
-    header += PARSEAPPLICATIONID_HEADER_VALUE;
+    std::string header = (std::string)PARSEAPPLICATIONID_HEADER_FIELD + ":" + PARSEAPPLICATIONID_HEADER_VALUE;
     return header.c_str();
 }
 
 
 const char *COTDParse::apiKey()
 {
-    std::string header = PARSERESTAPIKEY_HEADER_FIELD;
-    header += ":";
-    header += PARSERESTAPIKEY_HEADER_VALUE;
-    return header.c_str();
+    return ((std::string)PARSERESTAPIKEY_HEADER_FIELD + ":" + PARSERESTAPIKEY_HEADER_VALUE).c_str();
 }
 
 
@@ -400,11 +419,10 @@ bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
         return false;
     }
     
-    std::vector<char> *buffer = response->getResponseData();
     std::string res;
-    for (unsigned int i = 0; i < buffer->size(); i++)
+    for (const auto &character : *response->getResponseData())
     {
-        res += (*buffer)[i];
+        res += character;
     }
     dbg << "COTDParse::onHttpRequestCompleted() dump data:" << "{\n" << res.c_str() << "}\n" << endl;
     
@@ -539,21 +557,20 @@ bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
 
 bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
                               std::strstream& error,
-                              COTDImage &image)
+                              std::string& objectId)
 {
     rapidjson::Document json;
     if (!this->parseResponse(response, error, json))
     {
         return false;
     }
-    std::string objectId = DICTOOL->getStringValue_json(json, P_objectId);
+    objectId = DICTOOL->getStringValue_json(json, P_objectId);
     if (!objectId.length())
     {
         error << "empty " << P_objectId << '\0';
         return false;
     }
     
-    image.setObjectId(objectId);
     return true;
 }
 
@@ -612,10 +629,7 @@ bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
             break;
         }
         
-        std::size_t positionT = savedAtDateTime.find_last_of("T");
-        const std::string& savedAt = savedAtDateTime.substr(0, positionT);
-        
-        COTDUserImage userImage(image, savedAt);
+        COTDUserImage userImage(image, savedAtDateTime);
         dbg << "#" << iterator << ": " << userImage << endl;
         vector.push_back(userImage);
     }
@@ -631,6 +645,21 @@ bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
     }
     
     return false;
+}
+
+void COTDParse::onHttpRequestCompletedLogout(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
+{
+    bool succeeded = false;
+    std::strstream error;
+    rapidjson::Document json;
+    succeeded = this->parseResponse(response, error, json);
+    
+    if (succeeded)
+    {
+        this->configMap.erase(kSessionTokenKeyConfiguration);
+    }
+    
+    this->destroyInstance();
 }
 
 void COTDParse::onHttpRequestCompletedAnonymousSignin(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
@@ -670,9 +699,9 @@ void COTDParse::onHttpRequestCompletedQueryImages(cocos2d::network::HttpClient *
         this->queryUserImages();
     }
     
-    for (COTDImage::Vector::iterator iter = this->images.begin(); iter < this->images.end(); ++iter)
+    for (const auto &image : this->images)
     {
-        inf << "getFullUrl = " << iter->getFullUrl() << endl;
+        inf << "getFullUrl = " << image.getFullUrl() << endl;
     }
 }
 
@@ -688,16 +717,25 @@ void COTDParse::onHttpRequestCompletedQueryUserImages(cocos2d::network::HttpClie
         this->callbackQueryImages(succeeded, error);
     }
     
-    for (COTDUserImage::Vector::iterator iter = this->userImages.begin(); iter < this->userImages.end(); ++iter)
+    for (const auto &userImage : this->userImages)
     {
-        inf << "getSavedAt = " << iter->getSavedAt() << endl;
+        inf << "getSavedAt = " << userImage.getSavedAt() << endl;
     }
+
 }
 
 void COTDParse::onHttpRequestCompletedUpdateUserImage(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
 {
     bool succeeded = false;
     std::strstream error;
+
+    std::string objectId;
+    succeeded = this->parseResponse(response, error, objectId);
+    
+    if (succeeded)
+    {
+        this->userImages.push_back(this->sandboxUserImage);
+    }
     
     if (this->callbackUpdateImage)
     {
@@ -710,15 +748,19 @@ void COTDParse::onHttpRequestCompletedUpdateImage(cocos2d::network::HttpClient *
     bool succeeded = false;
     std::strstream error;
     
+    std::string objectId;
+    succeeded = this->parseResponse(response, error, objectId);
+    
+    if (succeeded)
+    {
+        this->sandboxImage.setObjectId(objectId);
+        this->images.push_back(this->sandboxImage);
+        this->sandboxUserImage = COTDUserImage(this->sandboxImage.getObjectId(), this->now());
+    }
     if (this->callbackUpdateImage)
     {
-        
-        succeeded = this->parseResponse(response, error, this->sandboxImage);
-
         if (succeeded)
         {
-            this->images.push_back(sandboxImage);
-            this->sandboxUserImage = COTDUserImage(sandboxImage.getObjectId(), this->now());
             this->updateUserImage(this->sandboxUserImage, this->callbackUpdateImage);
         }
         else
@@ -740,9 +782,9 @@ void COTDParse::onHttpRequestCompletedQueryTopTenImages(cocos2d::network::HttpCl
         this->callbackQueryImages(succeeded, error);
     }
     
-    for (COTDImage::Vector::iterator iter = this->images.begin(); iter < this->images.end(); ++iter)
+    for (const auto &image : this->images)
     {
-        inf << "getFullUrl = " << iter->getFullUrl() << endl;
+        inf << "getFullUrl = " << image.getFullUrl() << endl;
     }
 }
 
@@ -750,15 +792,14 @@ void COTDParse::onHttpRequestCompletedQueryTopTenImages(cocos2d::network::HttpCl
 const std::pair<bool, const COTDUserImage &> COTDParse::userImage()
 {
     const std::string & today = this->today();
-    for (COTDUserImage::Vector::iterator iter = this->userImages.begin(); iter < this->userImages.end(); ++iter)
+    for (const auto &userImage : this->userImages)
     {
-        if (iter->getSavedAt() == today)
+        if (userImage.getDateSavedAt() == today)
         {
-            return std::make_pair(true, *iter);
+            return std::make_pair(true, userImage);
         }
     }
-    const auto userImage = COTDUserImage();
-    return std::make_pair(false, userImage);
+    return std::make_pair(false, COTDUserImage());
 }
 
 
@@ -769,12 +810,11 @@ const COTDImage * COTDParse::currentUserImage()
     {
         return nullptr;
     }
-    for (COTDImage::Vector::iterator iter = this->images.begin(); iter < this->images.end(); ++iter)
+    for (const auto &image : this->images)
     {
-        if (iter->getObjectId() == userImage.second.getImage())
+        if (image.getObjectId() == userImage.second.getImage())
         {
-            COTDImage *img = &*iter;
-            return img;
+            return &image;
         }
     }
     return nullptr;
@@ -782,13 +822,13 @@ const COTDImage * COTDParse::currentUserImage()
 
 bool COTDParse::isLinkRepeated(const std::string& fullUrl)
 {
-    for (COTDUserImage::Vector::iterator userImage = this->userImages.begin(); userImage < this->userImages.end(); ++userImage)
+    for (const auto &userImage : this->userImages)
     {
-        for (COTDImage::Vector::iterator image = this->images.begin(); image < this->images.end(); ++image)
+        for (const auto &image : this->images)
         {
-            if (image->getObjectId() == userImage->getImage())
+            if (image.getObjectId() == userImage.getImage())
             {
-                if (image->getFullUrl() == fullUrl)
+                if (image.getFullUrl() == fullUrl)
                 {
                     return true;
                 }

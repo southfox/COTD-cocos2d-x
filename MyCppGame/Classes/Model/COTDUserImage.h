@@ -27,6 +27,7 @@ public:
     
     const std::string& getImage() const;
     const std::string& getSavedAt() const;
+    const std::string getDateSavedAt() const;
     
     typedef std::vector <COTDUserImage> Vector;
 

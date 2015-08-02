@@ -100,11 +100,10 @@ bool COTDGoogle::parseResponse(cocos2d::network::HttpResponse *response,
         return false;
     }
     
-    std::vector<char> *buffer = response->getResponseData();
     std::string res;
-    for (unsigned int i = 0; i < buffer->size(); i++)
+    for (const auto &character : *response->getResponseData())
     {
-        res += (*buffer)[i];
+        res += character;
     }
     dbg << "COTDGoogle::onHttpRequestCompleted() dump data:" << "{\n" << res.c_str() << "}\n" << endl;
     
