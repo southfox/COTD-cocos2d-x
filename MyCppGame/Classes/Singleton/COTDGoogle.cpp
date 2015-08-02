@@ -13,6 +13,7 @@
 #include <HttpResponse.h>
 #include "extensions/cocos-ext.h"
 #include "network/HttpClient.h"
+#include <assets-manager/Downloader.h>
 
 #include "cocostudio/DictionaryHelper.h"
 using namespace cocostudio;
@@ -179,6 +180,20 @@ void COTDGoogle::onHttpRequestCompleted(cocos2d::network::HttpClient *sender, co
     if (this->callback)
     {
         succeeded = this->parseResponse(response, link, thumbnailLink, title, error);
+        
+        if (succeeded)
+        {
+            // File does not exist, download.
+            std::shared_ptr<cocos2d::extension::Downloader> downloader = std::make_shared<cocos2d::extension::Downloader>();
+            //    getContentSize
+            long size = downloader->getContentSize(link);
+            dbg << "size = " << size << endl;
+            succeeded = (size > 0);
+            if (!succeeded)
+            {
+                error << "Image is 0 size" << '\0';
+            }
+        }
         
         this->callback(succeeded, link, thumbnailLink, title, error);
     }

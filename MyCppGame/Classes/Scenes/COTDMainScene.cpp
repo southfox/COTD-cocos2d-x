@@ -45,8 +45,6 @@ bool COTDMain::init()
     
     COTDMain::configureTitle();
     
-    COTDMain::configureImage("capybara.jpg");
-    
     return true;
 }
 
@@ -238,14 +236,8 @@ void COTDMain::download(const COTDImage *currentUserImage)
     // File does not exist, download.
     
     this->downloader = std::make_shared<cocos2d::extension::Downloader>();
-//    getContentSize
-    long size = this->downloader->getContentSize(currentUserImage->getFullUrl());
-    dbg << "size = " << size << endl;
-//    this->downloader->
-//    curl_easy_setopt(_curl, CURLOPT_SSL_VERIFYPEER, 0L);
 
     this->downloader->setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
-//    this->downloader->prepareHeader(0, 0);
     
     this->downloader->setErrorCallback(std::bind(&COTDMain::onError,
                                                  this,
