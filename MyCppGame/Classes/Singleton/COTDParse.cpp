@@ -848,7 +848,7 @@ bool COTDParse::isLinkRepeated(const std::string& fullUrl)
 
 const std::string COTDParse::date(int n) const
 {
-    COTDDate now(n+10);
+    COTDDate now(n);
     std::string nowStr = now.format((char*)"%FT%T");
     return nowStr;
 }
