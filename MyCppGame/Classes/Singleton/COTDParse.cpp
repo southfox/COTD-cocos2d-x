@@ -38,6 +38,7 @@ using namespace cocostudio;
 #define PARSERESTAPIKEY_HEADER_VALUE        "IbCj3m1TlWMag98nQDDkv1nXUAvMN7PW6fNsbMYP"
 #define PARSEREVOCABLESESSION_HEADER_FIELD  "X-Parse-Revocable-Session"
 #define CONFIGURATION_COTD_FILE             "cotd.plist"
+#define OFFSET_DAY                          0
 
 #include "COTDParse.h"
 
@@ -848,7 +849,7 @@ bool COTDParse::isLinkRepeated(const std::string& fullUrl)
 
 const std::string COTDParse::date(int n) const
 {
-    COTDDate now(n);
+    COTDDate now(n+OFFSET_DAY);
     std::string nowStr = now.format((char*)"%FT%T");
     return nowStr;
 }
@@ -860,7 +861,7 @@ const std::string COTDParse::now() const
 
 const char * COTDParse::aWeekAgo() const
 {
-    auto now = this->date(-7);
+    auto now = this->date(-7+OFFSET_DAY);
     std::size_t positionT = now.find_last_of("T");
     const std::string aWeekAgoStr = now.substr(0, positionT);
     return aWeekAgoStr.c_str();
