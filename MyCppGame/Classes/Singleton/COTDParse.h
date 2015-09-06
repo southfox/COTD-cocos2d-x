@@ -42,6 +42,7 @@ public:
     ~COTDParse();
 
     void query(const ccParseCallback& callback);
+    void likeCurrentImage(const ccParseCallback& callback);
     void queryImages();
     void queryUserImages();
     void queryTopTenImages(const ccImageVectorParseCallback& callback);
@@ -99,6 +100,8 @@ private:
     void queryUserImages(const cocos2d::network::ccHttpRequestCallback& callback);
     void updateImage(const cocos2d::network::ccHttpRequestCallback& callback);
     void updateUserImage(const COTDUserImage &userImage, const cocos2d::network::ccHttpRequestCallback& callback);
+    void getCurrentImage(const cocos2d::network::ccHttpRequestCallback& callback);
+    void likeCurrentImage(const cocos2d::network::ccHttpRequestCallback& callback);
 
     void onHttpRequestCompletedAnonymousSignin(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
     void onHttpRequestCompletedLogout(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
@@ -107,6 +110,8 @@ private:
     void onHttpRequestCompletedQueryUserImages(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
     void onHttpRequestCompletedUpdateImage(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
     void onHttpRequestCompletedUpdateUserImage(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
+    void onHttpRequestCompletedLikeCurrentImage(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
+    void onHttpRequestCompletedQueryAndLikeCurrentUserImage(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response);
     
     const char * applicationId();
     const char * apiKey();

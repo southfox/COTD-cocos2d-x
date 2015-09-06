@@ -9,6 +9,7 @@
 #include <assets-manager/Downloader.h>
 
 #include "COTDCommon.h"
+#include "CCActivityIndicator.h"
 
 Scene* COTDMain::createScene()
 {
@@ -36,6 +37,7 @@ bool COTDMain::init()
     }
     
     dbg << endl;
+    COTDMain::createSpinner();
 
     COTDMain::queryParse();
 
@@ -128,6 +130,8 @@ void COTDMain::configureTitle()
 
 void COTDMain::configureImage(const std::string &imageName)
 {
+    this->activityIndicator->stopAnimating();
+
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
@@ -136,6 +140,7 @@ void COTDMain::configureImage(const std::string &imageName)
     
     // position the sprite on the center of the screen
     sprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
+    sprite->setScale((visibleSize.width - 50)/sprite->getContentSize().width);
     
     // add the sprite as a child to this layer
     this->addChild(sprite, 0);
@@ -164,6 +169,18 @@ void COTDMain::searchGoogle()
                                                                std::placeholders::_5));
 }
 
+void COTDMain::createSpinner()
+{
+    this->activityIndicator = new CCActivityIndicator();
+    this->activityIndicator->init();
+    this->activityIndicator->setParent(this);
+    this->activityIndicator->startAnimating();
+    
+    Size visibleSize = Director::getInstance()->getVisibleSize();
+    Vec2 origin = Director::getInstance()->getVisibleOrigin();
+    this->activityIndicator->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
+}
+
 void COTDMain::queryParse()
 {
     std::string term;
@@ -175,7 +192,12 @@ void COTDMain::queryParse()
 
 void COTDMain::menuLikeCallback(Ref* pSender)
 {
+    COTDParse::sharedInstance()->likeCurrentImage(std::bind(&COTDMain::onLikeCurrentImage,
+                                                            this,
+                                                            std::placeholders::_1,
+                                                            std::placeholders::_2));
 }
+
 
 void COTDMain::menuGridCallback(Ref* pSender)
 {
@@ -292,6 +314,10 @@ void COTDMain::googleSearchCallback(bool succeeded,
 }
 
 
+void COTDMain::onLikeCurrentImage(bool succeeded, std::strstream& error)
+{
+    
+}
 
 void COTDMain::onUpdateImage(bool succeeded, std::strstream& error)
 {

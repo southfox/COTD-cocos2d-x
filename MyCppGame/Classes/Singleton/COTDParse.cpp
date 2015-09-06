@@ -38,7 +38,7 @@ using namespace cocostudio;
 #define PARSERESTAPIKEY_HEADER_VALUE        "IbCj3m1TlWMag98nQDDkv1nXUAvMN7PW6fNsbMYP"
 #define PARSEREVOCABLESESSION_HEADER_FIELD  "X-Parse-Revocable-Session"
 #define CONFIGURATION_COTD_FILE             "cotd.plist"
-#define OFFSET_DAY                          0
+#define OFFSET_DAY                          3
 
 #include "COTDParse.h"
 
@@ -94,14 +94,41 @@ std::string COTDParse::configFileName()
 
 std::string COTDParse::createUUID()
 {
-#if !defined(ANDROID)
+#if defined(ANDROID)
+//    return [NSString stringWithFormat:"055aa316-706f-4326-90fc-5db03520c2b6";
+    std::strstream str;
+    for (int i = 0; i < 3; i++)
+    {
+        str << (int)arc4random()%10;
+    }
+    str << "aa";
+    for (int i = 0; i < 3; i++)
+    {
+        str << (int)arc4random()%10;
+    }
+    str << "-";
+    for (int i = 0; i < 3; i++)
+    {
+        str << (int)arc4random()%10;
+    }
+    str << "f-";
+    for (int i = 0; i < 4; i++)
+    {
+        str << (int)arc4random()%10;
+    }
+    str << "-90fc-" << (int)arc4random()%10 << "db";
+    for (int i = 0; i < 5; i++)
+    {
+        str << (int)arc4random()%10;
+    }
+    str >> "c2b6" << '\0';
+    return (std::string)s.str();
+#else
     uuid_t uuid;
     uuid_generate_random(uuid);
     char s[37];
     uuid_unparse_lower(uuid, s);
     return s;
-#else
-    return "055aa316-706f-4326-90fc-5db03520c2b6";
 #endif
 }
 
@@ -196,6 +223,15 @@ void COTDParse::query(const ccParseCallback& callback)
     this->anonymousSignin();
 }
 
+void COTDParse::likeCurrentImage(const ccParseCallback &callback)
+{
+    this->callbackQueryImages = callback;
+    
+    this->queryUserImages(CC_CALLBACK_2(COTDParse::onHttpRequestCompletedQueryAndLikeCurrentUserImage, this));
+    
+}
+
+
 void COTDParse::queryImages()
 {
     dbg << endl;
@@ -209,6 +245,7 @@ void COTDParse::queryUserImages()
     
     this->queryUserImages(CC_CALLBACK_2(COTDParse::onHttpRequestCompletedQueryUserImages, this));
 }
+
 
 void COTDParse::queryTopTenImages(const ccImageVectorParseCallback& callback)
 {
@@ -297,6 +334,31 @@ void COTDParse::queryImages(const cocos2d::network::ccHttpRequestCallback& callb
     request->release();
 }
 
+void COTDParse::getCurrentImage(const cocos2d::network::ccHttpRequestCallback& callback)
+{
+    cocos2d::network::HttpRequest* request = new (std::nothrow) cocos2d::network::HttpRequest();
+    
+    std::strstream aux;
+    aux << COTDIMAGE_URL << "/" << this->currentUserImage()->getObjectId() << '\0';
+    
+    const char *urlEncoded = encodeUrl(aux.str());
+    dbg << "Url = [" << urlEncoded << "]" << endl;
+    request->setUrl(urlEncoded);
+    
+    request->setRequestType(cocos2d::network::HttpRequest::Type::GET);
+    
+    std::vector<std::string> headers;
+    headers.push_back(this->applicationId());
+    headers.push_back(this->apiKey());
+    request->setHeaders(headers);
+    
+    request->setResponseCallback(callback);
+    request->setTag("GET COTD_IMAGE/objectId");
+    cocos2d::network::HttpClient::getInstance()->send(request);
+    request->release();
+}
+
+
 void COTDParse::queryUserImages(const cocos2d::network::ccHttpRequestCallback& callback)
 {
     cocos2d::network::HttpRequest* request = new (std::nothrow) cocos2d::network::HttpRequest();
@@ -331,6 +393,42 @@ void COTDParse::queryUserImages(const cocos2d::network::ccHttpRequestCallback& c
     request->release();
 }
 
+
+
+
+void COTDParse::likeCurrentImage(const cocos2d::network::ccHttpRequestCallback& callback)
+{
+    cocos2d::network::HttpRequest* request = new (std::nothrow) cocos2d::network::HttpRequest();
+    
+    std::strstream url;
+    url << COTDIMAGE_URL << "/" << this->currentUserImage()->getObjectId() << '\0';
+    
+    const char *urlEncoded = encodeUrl(url.str());
+    
+    dbg << "Url = [" << urlEncoded << "]" << endl;
+    request->setUrl(urlEncoded);
+    request->setRequestType(cocos2d::network::HttpRequest::Type::PUT);
+    
+    std::vector<std::string> headers;
+    headers.push_back(this->applicationId());
+    headers.push_back(this->apiKey());
+    request->setHeaders(headers);
+    
+    std::strstream aux;
+    aux << "{"
+    << "\"likes\": " << this->currentUserImage()->getLikes()+1
+    << "}"
+    << '\0';
+    
+    dbg << "Data = [" << aux.str() << "]" << endl;
+    
+    request->setRequestData(aux.str(), aux.pcount());
+    
+    request->setResponseCallback(callback);
+    request->setTag("PUT COTD_IMAGE");
+    cocos2d::network::HttpClient::getInstance()->send(request);
+    request->release();
+}
 
 void COTDParse::updateImage(const cocos2d::network::ccHttpRequestCallback& callback)
 {
@@ -707,11 +805,6 @@ void COTDParse::onHttpRequestCompletedQueryImages(cocos2d::network::HttpClient *
         
         this->queryUserImages();
     }
-    
-    for (const auto &image : this->images)
-    {
-        inf << "getFullUrl = " << image.getFullUrl() << endl;
-    }
 }
 
 void COTDParse::onHttpRequestCompletedQueryUserImages(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
@@ -721,6 +814,7 @@ void COTDParse::onHttpRequestCompletedQueryUserImages(cocos2d::network::HttpClie
     
     if (this->callbackQueryImages)
     {
+        this->userImages.clear();
         succeeded = this->parseResponse(response, error, this->userImages);
         
         this->callbackQueryImages(succeeded, error);
@@ -730,14 +824,36 @@ void COTDParse::onHttpRequestCompletedQueryUserImages(cocos2d::network::HttpClie
     {
         inf << "getSavedAt = " << userImage.getSavedAt() << endl;
     }
-
+    
 }
+
+void COTDParse::onHttpRequestCompletedQueryAndLikeCurrentUserImage(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
+{
+    bool succeeded = false;
+    std::strstream error;
+    
+    if (this->callbackQueryImages)
+    {
+        this->userImages.clear();
+        succeeded = this->parseResponse(response, error, this->userImages);
+        
+        if (succeeded)
+        {
+            this->likeCurrentImage(CC_CALLBACK_2(COTDParse::onHttpRequestCompletedLikeCurrentImage, this));
+        }
+        else
+        {
+            this->callbackQueryImages(succeeded, error);
+        }
+    }
+}
+
 
 void COTDParse::onHttpRequestCompletedUpdateUserImage(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
 {
     bool succeeded = false;
     std::strstream error;
-
+    
     std::string objectId;
     succeeded = this->parseResponse(response, error, objectId);
     
@@ -779,16 +895,32 @@ void COTDParse::onHttpRequestCompletedUpdateImage(cocos2d::network::HttpClient *
     }
 }
 
+
+
+void COTDParse::onHttpRequestCompletedLikeCurrentImage(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
+{
+    bool succeeded = false;
+    std::strstream error;
+    
+    std::string objectId;
+    succeeded = this->parseResponse(response, error, objectId);
+    
+    if (this->callbackQueryImages)
+    {
+        this->callbackQueryImages(succeeded, error);
+    }
+}
+
 void COTDParse::onHttpRequestCompletedQueryTopTenImages(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
 {
     bool succeeded = false;
     std::strstream error;
     
-    if (this->callbackQueryImages)
+    if (this->callbackQueryTopTenImages)
     {
         succeeded = this->parseResponse(response, error, this->topTenImages);
         
-        this->callbackQueryImages(succeeded, error);
+        this->callbackQueryTopTenImages(succeeded, error, this->topTenImages);
     }
     
     for (const auto &image : this->images)

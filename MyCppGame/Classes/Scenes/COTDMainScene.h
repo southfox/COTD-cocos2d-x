@@ -7,6 +7,7 @@
 #include <strstream>
 
 class COTDImage;
+class CCActivityIndicator;
 
 using namespace cocos2d;
 
@@ -14,6 +15,7 @@ class COTDMain : public cocos2d::Layer
 {
 protected:
     std::shared_ptr<cocos2d::extension::Downloader> downloader;
+    CCActivityIndicator *activityIndicator;
 
 private:
     MenuItemImage* createCloseButton();
@@ -31,6 +33,8 @@ private:
                               const std::string& title,
                               std::strstream& error);
 
+    void createSpinner();
+
     // Parse.com
     void queryParse();
 
@@ -42,8 +46,8 @@ private:
     void onError(const cocos2d::extension::Downloader::Error &error);
     void onProgress(double total, double downloaded, const std::string &url, const std::string &customId);
     void onSuccess(const std::string &srcUrl, const std::string &storagePath, const std::string &customId);
-    void onUpdateImage(bool succeeded,
-                                 std::strstream& error);
+    void onUpdateImage(bool succeeded, std::strstream& error);
+    void onLikeCurrentImage(bool succeeded, std::strstream& error);
     
     void download(const COTDImage *currentUserImage);
 

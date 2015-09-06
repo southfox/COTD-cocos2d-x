@@ -10,6 +10,8 @@
 	<string>MyCppGame</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
+		<key>9950A700CE7301BE78081B418957F5AF3FA5A304</key>
+		<string>https://github.com/spalx/cocos2d-x-extensions</string>
 		<key>FD9B45296555370E8CE7390A3A16393D1FCC76CB</key>
 		<string>https://github.com/southfox/COTD-cocos2d-x.git</string>
 	</dict>
@@ -17,6 +19,8 @@
 	<string>MyCppGame/proj.ios_mac/MyCppGame.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
+		<key>9950A700CE7301BE78081B418957F5AF3FA5A304</key>
+		<string>../../../../MyCppGame/Classes/Extensions/cocos2d-x-extensions</string>
 		<key>FD9B45296555370E8CE7390A3A16393D1FCC76CB</key>
 		<string>../../../..</string>
 	</dict>
@@ -28,6 +32,14 @@
 	<string>FD9B45296555370E8CE7390A3A16393D1FCC76CB</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>9950A700CE7301BE78081B418957F5AF3FA5A304</string>
+			<key>IDESourceControlWCCName</key>
+			<string>cocos2d-x-extensions</string>
+		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
