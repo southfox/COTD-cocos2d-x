@@ -36,6 +36,7 @@ class COTDParse
     const char* P_id = "id";
     const char* P_sessionToken = "sessionToken";
     const char* P_username = "username";
+    const char* P_updatedAt = "updatedAt";
 
 public:
     static COTDParse* sharedInstance();
@@ -55,6 +56,7 @@ public:
     ccParseCallback callbackUpdateUserImage;
 
     const COTDImage * currentUserImage();
+    void incrementLikes();
     static void destroyInstance();
     bool isLinkRepeated(const std::string& fullUrl);
 
@@ -94,7 +96,8 @@ private:
     
     bool parseResponse(cocos2d::network::HttpResponse *response,
                        std::strstream& error,
-                       std::string& objectId);
+                       const std::string& key,
+                       std::string& value);
 
     void queryImages(const cocos2d::network::ccHttpRequestCallback& callback, int limit = 1000, bool onlyLikes = false);
     void queryUserImages(const cocos2d::network::ccHttpRequestCallback& callback);

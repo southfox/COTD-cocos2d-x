@@ -664,17 +664,22 @@ bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
 
 bool COTDParse::parseResponse(cocos2d::network::HttpResponse *response,
                               std::strstream& error,
-                              std::string& objectId)
+                              const std::string& key,
+                              std::string& value)
 {
     rapidjson::Document json;
     if (!this->parseResponse(response, error, json))
     {
         return false;
     }
-    objectId = DICTOOL->getStringValue_json(json, P_objectId);
-    if (!objectId.length())
+    if (!DICTOOL->checkObjectExist_json(json, key.c_str()))
     {
-        error << "empty " << P_objectId << '\0';
+        return false;
+    }
+    value = DICTOOL->getStringValue_json(json, key.c_str());
+    if (!value.length())
+    {
+        error << "empty " << key.c_str() << '\0';
         return false;
     }
     
@@ -855,7 +860,7 @@ void COTDParse::onHttpRequestCompletedUpdateUserImage(cocos2d::network::HttpClie
     std::strstream error;
     
     std::string objectId;
-    succeeded = this->parseResponse(response, error, objectId);
+    succeeded = this->parseResponse(response, error, P_objectId, objectId);
     
     if (succeeded)
     {
@@ -874,7 +879,7 @@ void COTDParse::onHttpRequestCompletedUpdateImage(cocos2d::network::HttpClient *
     std::strstream error;
     
     std::string objectId;
-    succeeded = this->parseResponse(response, error, objectId);
+    succeeded = this->parseResponse(response, error, P_objectId, objectId);
     
     if (succeeded)
     {
@@ -902,8 +907,13 @@ void COTDParse::onHttpRequestCompletedLikeCurrentImage(cocos2d::network::HttpCli
     bool succeeded = false;
     std::strstream error;
     
-    std::string objectId;
-    succeeded = this->parseResponse(response, error, objectId);
+    std::string updatedAt;
+    succeeded = this->parseResponse(response, error, P_updatedAt, updatedAt);
+    
+    if (succeeded)
+    {
+        this->incrementLikes();
+    }
     
     if (this->callbackQueryImages)
     {
@@ -959,6 +969,22 @@ const COTDImage * COTDParse::currentUserImage()
         }
     }
     return nullptr;
+}
+
+void COTDParse::incrementLikes()
+{
+    const auto userImage = this->userImage();
+    if (!userImage.first)
+    {
+        return;
+    }
+    for (auto &image : this->images)
+    {
+        if (image.getObjectId() == userImage.second.getImage())
+        {
+            image.incrementLikes();
+        }
+    }
 }
 
 bool COTDParse::isLinkRepeated(const std::string& fullUrl)

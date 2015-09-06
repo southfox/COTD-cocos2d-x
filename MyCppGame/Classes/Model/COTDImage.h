@@ -36,6 +36,7 @@ public:
     const std::string& getThumbnailUrl() const;
     const std::string& getImageTitle() const;
     const int getLikes() const;
+    void incrementLikes();
     
     typedef std::vector <COTDImage> Vector;
     
