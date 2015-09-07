@@ -48,8 +48,8 @@ protected:
     CC_SYNTHESIZE(bool, hidesWhenStopped, HidesWhenStopped);
 private:
     bool animating;
-    cocos2d::Vector<cocos2d::SpriteFrame *> spriteFrames;
-    cocos2d::Sprite * indicator;
+//    cocos2d::Vector<cocos2d::SpriteFrame *> spriteFrames;
+    cocos2d::Sprite* indicator;
     
     void updateVisibility();
 };

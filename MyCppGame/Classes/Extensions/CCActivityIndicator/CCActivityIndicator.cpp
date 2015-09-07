@@ -26,13 +26,15 @@
 
 #include "CCActivityIndicator.h"
 
+cocos2d::Vector<cocos2d::SpriteFrame *> spriteFrames;
+
 USING_NS_CC;
 
 bool CCActivityIndicator::init()
 {
-    SpriteFrameCache * spriteFramecache = SpriteFrameCache::getInstance();;
+    auto spritecache = SpriteFrameCache::getInstance();
     
-    spriteFramecache->addSpriteFramesWithFile("ccactivityindicator.plist");
+    spritecache->addSpriteFramesWithFile("ccactivityindicator.plist");
     CCSpriteBatchNode::initWithFile("ccactivityindicator.png", 1);
     
     Size winSize = Director::getInstance()->getVisibleSize();
@@ -44,12 +46,11 @@ bool CCActivityIndicator::init()
     
     animating = false;
     hidesWhenStopped = true;
-    
-//    spriteFrames = new Vector<SpriteFrame*>;
+
 
     //load all sprite frames into array
     for (int i=1; i<=kActivityIndicatorFramesCount; i++) {
-        SpriteFrame * frame = spriteFramecache->getSpriteFrameByName(CCString::createWithFormat("ccactivityindicator_%d.gif",i)->getCString());
+        SpriteFrame * frame = spritecache->getSpriteFrameByName(CCString::createWithFormat("ccactivityindicator_%d.gif",i)->getCString());
         frame->retain();
         spriteFrames.pushBack(frame);
     }
@@ -88,7 +89,9 @@ void CCActivityIndicator::setPosition(const cocos2d::Point& pos)
 
 void CCActivityIndicator::startAnimating()
 {
-    if (animating) return;
+    if (animating) {
+        return;
+    }
     animating = true;
     
     indicator->setVisible(true);
@@ -99,7 +102,10 @@ void CCActivityIndicator::startAnimating()
 
 void CCActivityIndicator::stopAnimating()
 {
-    if (!animating) return;
+    if (!animating)
+    {
+        return;
+    }
     animating = false;
     
     indicator->stopAllActions();

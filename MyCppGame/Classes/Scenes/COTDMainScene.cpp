@@ -167,12 +167,13 @@ void COTDMain::createSpinner()
 {
     this->activityIndicator = new CCActivityIndicator();
     this->activityIndicator->init();
-    this->activityIndicator->setParent(this);
+//    this->activityIndicator->setParent(this);
     this->activityIndicator->startAnimating();
     
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     this->activityIndicator->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
+    this->addChild(this->activityIndicator);
 }
 
 void COTDMain::queryParse()
