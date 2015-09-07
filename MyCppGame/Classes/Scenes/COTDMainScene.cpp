@@ -110,15 +110,9 @@ void COTDMain::configureTitle()
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
     std::string title = "Capybara of the day: ";
-    COTDDate now;
+    title += COTDParse::sharedInstance()->today();
     
-    title += now.month();
-    title += "-";
-    title += now.year();
-    title += "-";
-    title += now.day();
-    
-    auto label = Label::createWithTTF(title, "fonts/Marker Felt.ttf", 50);
+    auto label = Label::createWithTTF(title, "fonts/Marker Felt.ttf", 40);
     
     // position the label on the center of the screen
     label->setPosition(Vec2(origin.x + visibleSize.width/2,

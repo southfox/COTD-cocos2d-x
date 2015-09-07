@@ -61,6 +61,8 @@ public:
     bool isLinkRepeated(const std::string& fullUrl);
 
     int currentStart();
+    const char * today() const;
+
 
 protected:
     static COTDParse* _instance;
@@ -138,7 +140,6 @@ private:
     const std::pair<bool, const COTDImage *> isImageRepeated(const std::string& imageUrl);
     
     const std::string date(int n) const;
-    const char * today() const;
     const std::string now() const;
     const char * aWeekAgo() const;
 

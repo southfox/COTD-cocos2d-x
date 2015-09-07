@@ -38,7 +38,7 @@ using namespace cocostudio;
 #define PARSERESTAPIKEY_HEADER_VALUE        "IbCj3m1TlWMag98nQDDkv1nXUAvMN7PW6fNsbMYP"
 #define PARSEREVOCABLESESSION_HEADER_FIELD  "X-Parse-Revocable-Session"
 #define CONFIGURATION_COTD_FILE             "cotd.plist"
-#define OFFSET_DAY                          3
+#define OFFSET_DAY                          2
 
 #include "COTDParse.h"
 
@@ -1014,7 +1014,7 @@ const std::string COTDParse::date(int n) const
 
 const std::string COTDParse::now() const
 {
-    return this->date(0);
+    return this->date(0+OFFSET_DAY);
 }
 
 const char * COTDParse::aWeekAgo() const
