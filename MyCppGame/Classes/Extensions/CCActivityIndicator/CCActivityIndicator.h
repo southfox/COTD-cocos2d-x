@@ -33,6 +33,8 @@
 #define kActivityIndicatorFramesCount 12
 #define kActivityIndicatorDelayBetweenFrames 0.1
 
+typedef std::function<void(void)> ccActivityCallback;
+
 class CCActivityIndicator : public cocos2d::SpriteBatchNode {
 public:
     bool init();
@@ -42,16 +44,21 @@ public:
     void stopAnimating();
     bool isAnimating() {return animating;}
     
-    virtual void setParent(cocos2d::Node*p);
+    virtual void setParent(cocos2d::Node* p);
     virtual void setPosition(const cocos2d::Point& pos);
+    virtual void setBeginCallback(const ccActivityCallback &callback);
+    virtual void setEndCallback(const ccActivityCallback &callback);
 protected:
     CC_SYNTHESIZE(bool, hidesWhenStopped, HidesWhenStopped);
 private:
     bool animating;
-//    cocos2d::Vector<cocos2d::SpriteFrame *> spriteFrames;
     cocos2d::Sprite* indicator;
     
     void updateVisibility();
+    ccActivityCallback beginCallback;
+    ccActivityCallback endCallback;
+
 };
+
 
 #endif

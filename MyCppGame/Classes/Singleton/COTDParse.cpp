@@ -38,7 +38,7 @@ using namespace cocostudio;
 #define PARSERESTAPIKEY_HEADER_VALUE        "IbCj3m1TlWMag98nQDDkv1nXUAvMN7PW6fNsbMYP"
 #define PARSEREVOCABLESESSION_HEADER_FIELD  "X-Parse-Revocable-Session"
 #define CONFIGURATION_COTD_FILE             "cotd.plist"
-#define OFFSET_DAY                          2
+#define OFFSET_DAY                          3
 
 #include "COTDParse.h"
 

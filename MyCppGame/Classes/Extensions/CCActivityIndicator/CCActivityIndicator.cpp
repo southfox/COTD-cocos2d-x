@@ -46,6 +46,9 @@ bool CCActivityIndicator::init()
     
     animating = false;
     hidesWhenStopped = true;
+    
+//    beginCallback = NULL;
+//    endCallback =
 
 
     //load all sprite frames into array
@@ -75,8 +78,9 @@ void CCActivityIndicator::updateVisibility()
 
 void CCActivityIndicator::setParent(Node* p)
 {
-    CCSpriteBatchNode::setParent(p);
-    
+//    CCSpriteBatchNode::setParent(p);
+//    p->addChild(this);
+
     if (p!=NULL) {
         updateVisibility();
     }
@@ -85,6 +89,16 @@ void CCActivityIndicator::setParent(Node* p)
 void CCActivityIndicator::setPosition(const cocos2d::Point& pos)
 {
     indicator->setPosition(pos);
+}
+
+void CCActivityIndicator::setBeginCallback(const ccActivityCallback &callback)
+{
+    this->beginCallback = callback;
+}
+
+void CCActivityIndicator::setEndCallback(const ccActivityCallback &callback)
+{
+    this->endCallback = callback;
 }
 
 void CCActivityIndicator::startAnimating()
@@ -98,6 +112,10 @@ void CCActivityIndicator::startAnimating()
     Animation * anim = Animation::createWithSpriteFrames(spriteFrames, kActivityIndicatorDelayBetweenFrames);
     Animate * action = Animate::create(anim);
     indicator->runAction(CCRepeatForever::create(action));
+    if (this->beginCallback)
+    {
+        this->beginCallback();
+    }
 }
 
 void CCActivityIndicator::stopAnimating()
@@ -110,4 +128,9 @@ void CCActivityIndicator::stopAnimating()
     
     indicator->stopAllActions();
     updateVisibility();
+    if (this->endCallback)
+    {
+        this->endCallback();
+    }
+
 }

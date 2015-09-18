@@ -16,6 +16,8 @@ class COTDMain : public cocos2d::Layer
 protected:
     std::shared_ptr<cocos2d::extension::Downloader> downloader;
     CCActivityIndicator *activityIndicator;
+    MenuItemLabel *likeButton;
+    MenuItemLabel *gridButton;
 
 private:
     MenuItemImage* createCloseButton();
@@ -34,6 +36,8 @@ private:
                               std::strstream& error);
 
     void createSpinner();
+    void onSpinnerStart();
+    void onSpinnerEnd();
 
     // Parse.com
     void queryParse();
@@ -41,6 +45,7 @@ private:
     // a selector callback
     void menuLikeCallback(cocos2d::Ref* pSender);
     void menuGridCallback(cocos2d::Ref* pSender);
+    void onExit();
     void menuCloseCallback(cocos2d::Ref* pSender);
 
     void onError(const cocos2d::extension::Downloader::Error &error);

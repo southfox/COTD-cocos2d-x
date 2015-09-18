@@ -37,13 +37,11 @@ bool COTDMain::init()
     }
     
     dbg << endl;
+    COTDMain::configureMenu();
+
     COTDMain::createSpinner();
 
     COTDMain::queryParse();
-
-    COTDMain::configureMenu();
-    
-    COTDMain::createCloseButton();
     
     COTDMain::configureTitle();
     
@@ -80,12 +78,12 @@ MenuItemLabel* COTDMain::createLikeButton()
 
     auto like = Label::createWithTTF("[ like ]", "fonts/arial.ttf", 30);
 
-    auto likeButton = MenuItemLabel::create(like, CC_CALLBACK_1(COTDMain::menuLikeCallback, this));
+    this->likeButton = MenuItemLabel::create(like, CC_CALLBACK_1(COTDMain::menuLikeCallback, this));
     
-    likeButton->setPosition(Vec2(origin.x + visibleSize.width - like->getContentSize().width,
+    this->likeButton->setPosition(Vec2(origin.x + visibleSize.width - like->getContentSize().width,
                                  origin.y + visibleSize.height - like->getContentSize().height));
     
-    return likeButton;
+    return this->likeButton;
 
 }
 
@@ -96,12 +94,12 @@ MenuItemLabel* COTDMain::createGridButton()
 
     auto grid = Label::createWithTTF("[ grid ]", "fonts/arial.ttf", 30);
     
-    auto button = MenuItemLabel::create(grid, CC_CALLBACK_1(COTDMain::menuGridCallback, this));
+    this->gridButton = MenuItemLabel::create(grid, CC_CALLBACK_1(COTDMain::menuGridCallback, this));
     
-    button->setPosition(Vec2(origin.x + grid->getContentSize().width,
+    this->gridButton->setPosition(Vec2(origin.x + grid->getContentSize().width,
                            origin.y + visibleSize.height - grid->getContentSize().height));
     
-    return button;
+    return this->gridButton;
 }
 
 void COTDMain::configureTitle()
@@ -167,17 +165,31 @@ void COTDMain::createSpinner()
 {
     this->activityIndicator = new CCActivityIndicator();
     this->activityIndicator->init();
-//    this->activityIndicator->setParent(this);
-    this->activityIndicator->startAnimating();
-    
+    this->activityIndicator->setBeginCallback(CC_CALLBACK_0(COTDMain::onSpinnerStart, this));
+    this->activityIndicator->setEndCallback(CC_CALLBACK_0(COTDMain::onSpinnerEnd, this));
+
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     this->activityIndicator->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
-    this->addChild(this->activityIndicator);
+    this->addChild(this->activityIndicator, 1);
+}
+
+void COTDMain::onSpinnerStart()
+{
+    this->likeButton->setEnabled(false);
+    this->gridButton->setEnabled(false);
+}
+
+void COTDMain::onSpinnerEnd()
+{
+    this->likeButton->setEnabled(true);
+    this->gridButton->setEnabled(true);
 }
 
 void COTDMain::queryParse()
 {
+    this->activityIndicator->startAnimating();
+
     std::string term;
     COTDParse::sharedInstance()->query(std::bind(&COTDMain::onUpdateImage,
                                                  this,
@@ -187,6 +199,8 @@ void COTDMain::queryParse()
 
 void COTDMain::menuLikeCallback(Ref* pSender)
 {
+    this->activityIndicator->startAnimating();
+
     COTDParse::sharedInstance()->likeCurrentImage(std::bind(&COTDMain::onLikeCurrentImage,
                                                             this,
                                                             std::placeholders::_1,
@@ -196,9 +210,16 @@ void COTDMain::menuLikeCallback(Ref* pSender)
 
 void COTDMain::menuGridCallback(Ref* pSender)
 {
+    this->activityIndicator->startAnimating();
+
     auto scene = COTDGrid::createScene();
     auto director = Director::getInstance();
     director->pushScene(scene);
+}
+
+void COTDMain::onExit()
+{
+    this->activityIndicator->stopAnimating();
 }
 
 void COTDMain::menuCloseCallback(Ref* pSender)
@@ -311,7 +332,7 @@ void COTDMain::googleSearchCallback(bool succeeded,
 
 void COTDMain::onLikeCurrentImage(bool succeeded, std::strstream& error)
 {
-    
+    this->activityIndicator->stopAnimating();
 }
 
 void COTDMain::onUpdateImage(bool succeeded, std::strstream& error)
