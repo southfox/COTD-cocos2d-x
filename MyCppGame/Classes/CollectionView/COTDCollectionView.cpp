@@ -93,7 +93,12 @@ void COTDCollectionView::setBackGroundViewWithFile(const char *fileName)
         _backgroundView->cocos2d::Node::setPosition(position);
         _backgroundView->setAnchorPoint(Point(0.5,0.5));
         _backgroundView->setGlobalZOrder(-1);
+        
+        _backgroundView->setPosition(Vec2(this->getViewSize().width/2 + position.x, this->getViewSize().height/2 + position.y));
+        _backgroundView->setScale((this->getViewSize().width - 50)/_backgroundView->getContentSize().width);
+
         this->insertChild(_backgroundView, 0);
+
     }
 }
 
@@ -333,21 +338,20 @@ void COTDCollectionView::scrollViewDidScroll(ScrollView* view)
     }
     endIdx = (endIdx/_col+1)*_col-1;
     endIdx = endIdx>countOfItems-1 ? countOfItems-1:endIdx;
-#if 0 // For Testing.
-    Ref* pObj;
+#if 1 // For Testing.
     int i = 0;
-    CCARRAY_FOREACH(_cellsUsed, pObj)
+    for (auto pObj : _cellsUsed)
     {
-        CollectionViewCell* pCell = static_cast<CollectionViewCell*>(pObj);
-        log("cells Used index %d, value = %d", i, pCell->getIdx());
+        COTDCollectionViewCell* pCell = static_cast<COTDCollectionViewCell*>(pObj);
+        log("cells Used index %d, value = %zd", i, pCell->getIdx());
         i++;
     }
     log("---------------------------------------");
     i = 0;
-    CCARRAY_FOREACH(_cellsFreed, pObj)
+    for (auto pObj : _cellsFreed)
     {
-        CollectionViewCell* pCell = static_cast<CollectionViewCell*>(pObj);
-        log("cells freed index %d, value = %d", i, pCell->getIdx());
+        COTDCollectionViewCell* pCell = static_cast<COTDCollectionViewCell*>(pObj);
+        log("cells freed index %d, value = %zd", i, pCell->getIdx());
         i++;
     }
     log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
@@ -391,7 +395,8 @@ void COTDCollectionView::scrollViewDidScroll(ScrollView* view)
         }
     }
     
-    for (long i = startIdx; i <= endIdx; i++)
+//    for (long i = startIdx; i <= endIdx; i++)
+    for (long i = 0; i <= endIdx; i++)
     {
         if (_indices->find(i) != _indices->end())
         {

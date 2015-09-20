@@ -120,14 +120,21 @@ void COTDGrid::menuBackCallback(Ref* pSender)
 
 void COTDGrid::showCollection()
 {
-    Size winSize = Director::getInstance()->getWinSize();
+    Size visibleSize = Director::getInstance()->getVisibleSize();
+    Vec2 origin = Director::getInstance()->getVisibleOrigin();
+//    Size winSize = Director::getInstance()->getWinSize();
     
-    COTDCollectionView* collectionView = COTDCollectionView::create(this,this, Size(COLLECTIONVIEW_WIDHT, COLLECTIONVIEW_HEIGHT));
+    COTDCollectionView* collectionView = COTDCollectionView::create(this, this, visibleSize);
     collectionView->setMultipleSelectEnabled(true);
     collectionView->setDirection(ScrollView::Direction::VERTICAL);
-    collectionView->setAnchorPoint(Point(0.5f, 0.5f));
-    collectionView->setPosition(Point(winSize.width*0.5f-COLLECTIONVIEW_WIDHT*0.5f, winSize.height*0.5f-COLLECTIONVIEW_HEIGHT*0.5f));
-    collectionView->setBackGroundViewWithFile("HelloWorld.png");
+//    collectionView->setAnchorPoint(Point(0.5f, 0.5f));
+//    collectionView->setPosition(Point(winSize.width*0.5f-COLLECTIONVIEW_WIDHT*0.5f, winSize.height*0.5f-COLLECTIONVIEW_HEIGHT*0.5f));
+//    collectionView->setBackGroundViewWithFile("HelloWorld.png");
+    
+
+//    collectionView->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
+//    collectionView->setScale((visibleSize.width - 50)/sprite->getContentSize().width);
+
     
     this->addChild(collectionView);
     collectionView->reloadData();
@@ -149,27 +156,28 @@ void COTDGrid::collectionCellTouched(COTDCollectionView* collection, COTDCollect
 
 Size COTDGrid::collectionCellSizeForIndex(COTDCollectionView *collection, ssize_t idx)
 {
-    return Size(114, 114);
+    return Size(200, 200);
 }
 
 float COTDGrid::leftSideSpaceForCollection(COTDCollectionView* collection)
 {
-    return 0;
+    return 10;
 }
 
 float COTDGrid::upSideSpaceForCollection(COTDCollectionView* collection)
 {
-    return 0;
+    return 20;
 }
 
 #pragma mark - CollectionViewDataSource
 COTDCollectionViewCell* COTDGrid::collectionCellAtIndex(COTDCollectionView *collection, ssize_t idx)
 {
-    auto string = String::createWithFormat("%ld", idx);
+    char string[30];
+    sprintf(string, "%ld", idx);
     COTDCollectionViewCell *cell = collection->dequeueCell();
     if (!cell) {
         cell = COTDCollectionViewCell::create("Icon-144.png");
-        auto label = LabelTTF::create(string->getCString(), "Helvetica", 20.0);
+        auto label = Label::createWithTTF(string, "fonts/arial.ttf", 20.0);
         label->setPosition(Point::ZERO);
         label->setAnchorPoint(Point::ZERO);
         label->setTag(123);
@@ -177,14 +185,14 @@ COTDCollectionViewCell* COTDGrid::collectionCellAtIndex(COTDCollectionView *coll
     }
     else
     {
-        auto label = (LabelTTF*)cell->getChildByTag(123);
-        label->setString(string->getCString());
+        auto label = (Label*)cell->getChildByTag(123);
+        label->setString(string);
     }
     return cell;
 }
 
 ssize_t COTDGrid::numberOfCellsInCollection(COTDCollectionView *collection)
 {
-    return 40;
+    return 10;
 }
 

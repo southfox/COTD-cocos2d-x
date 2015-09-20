@@ -61,6 +61,20 @@ void COTDCollectionViewCell::setImageViewWithFile(const char *fileName)
     Size size = texture2D->getContentSize();
     _imageView->setTextureRect(Rect(0, 0, size.width, size.height));
     _imageView->setPosition(Point(size.width*0.5f, size.height*0.5f));
+    _imageView->setScale((size.width - 10) / 100);
+    // collectionCellSizeForIndex
+    
+    /*
+     Size visibleSize = Director::getInstance()->getVisibleSize();
+     Vec2 origin = Director::getInstance()->getVisibleOrigin();
+     
+     // add "COTDMain" splash screen"
+     auto sprite = Sprite::create(imageName);
+     
+     // position the sprite on the center of the screen
+     sprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
+     sprite->setScale((visibleSize.width - 50)/sprite->getContentSize().width);
+*/
 }
 
 Sprite* COTDCollectionViewCell::getImageView()
