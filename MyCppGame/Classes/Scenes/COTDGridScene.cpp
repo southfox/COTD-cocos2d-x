@@ -127,7 +127,7 @@ void COTDGrid::showCollection()
     collectionView->setDirection(ScrollView::Direction::VERTICAL);
     collectionView->setAnchorPoint(Point(0.5f, 0.5f));
     collectionView->setPosition(Point(winSize.width*0.5f-COLLECTIONVIEW_WIDHT*0.5f, winSize.height*0.5f-COLLECTIONVIEW_HEIGHT*0.5f));
-    collectionView->setBackGroundViewWithFile("natural_0.png");
+    collectionView->setBackGroundViewWithFile("HelloWorld.png");
     
     this->addChild(collectionView);
     collectionView->reloadData();
@@ -168,7 +168,7 @@ COTDCollectionViewCell* COTDGrid::collectionCellAtIndex(COTDCollectionView *coll
     auto string = String::createWithFormat("%ld", idx);
     COTDCollectionViewCell *cell = collection->dequeueCell();
     if (!cell) {
-        cell = COTDCollectionViewCell::create("Icon.png");
+        cell = COTDCollectionViewCell::create("Icon-144.png");
         auto label = LabelTTF::create(string->getCString(), "Helvetica", 20.0);
         label->setPosition(Point::ZERO);
         label->setAnchorPoint(Point::ZERO);

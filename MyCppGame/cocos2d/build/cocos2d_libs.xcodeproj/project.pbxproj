@@ -1827,7 +1827,6 @@
 		B21770421977ECF8009EE11B /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B21770411977ECF8009EE11B /* ApplicationServices.framework */; };
 		B21770451977ED14009EE11B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B21770431977ED07009EE11B /* Cocoa.framework */; };
 		B21770471977ED34009EE11B /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B21770461977ED34009EE11B /* QuartzCore.framework */; };
-		B217704E1977ED9F009EE11B /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B217704C1977ED8B009EE11B /* libsqlite3.dylib */; };
 		B230ED7119B417AE00364AA8 /* CCTrianglesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B230ED6F19B417AE00364AA8 /* CCTrianglesCommand.cpp */; };
 		B230ED7219B417AE00364AA8 /* CCTrianglesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B230ED6F19B417AE00364AA8 /* CCTrianglesCommand.cpp */; };
 		B230ED7319B417AE00364AA8 /* CCTrianglesCommand.h in Headers */ = {isa = PBXBuildFile; fileRef = B230ED7019B417AE00364AA8 /* CCTrianglesCommand.h */; };
@@ -3087,7 +3086,6 @@
 		292F1A5C1A5151CE00E479F8 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
 		292F1A601A52447100E479F8 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = ../external/curl/prebuilt/mac/libcrypto.a; sourceTree = "<group>"; };
 		292F1A611A52447100E479F8 /* libcurl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcurl.a; path = ../external/curl/prebuilt/mac/libcurl.a; sourceTree = "<group>"; };
-		292F1A661A524F2700E479F8 /* libssl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssl.dylib; path = usr/lib/libssl.dylib; sourceTree = SDKROOT; };
 		292F1A6A1A5250F700E479F8 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = ../external/curl/prebuilt/mac/libssl.a; sourceTree = "<group>"; };
 		29394CEC19B01DBA00D2DE1A /* UIWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIWebView.h; sourceTree = "<group>"; };
 		29394CED19B01DBA00D2DE1A /* UIWebView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = UIWebView.mm; sourceTree = "<group>"; };
@@ -3635,9 +3633,6 @@
 		B21770411977ECF8009EE11B /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
 		B21770431977ED07009EE11B /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		B21770461977ED34009EE11B /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
-		B21770481977ED4C009EE11B /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
-		B217704A1977ED55009EE11B /* libcurl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.dylib; path = usr/lib/libcurl.dylib; sourceTree = SDKROOT; };
-		B217704C1977ED8B009EE11B /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		B230ED6F19B417AE00364AA8 /* CCTrianglesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCTrianglesCommand.cpp; sourceTree = "<group>"; };
 		B230ED7019B417AE00364AA8 /* CCTrianglesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCTrianglesCommand.h; sourceTree = "<group>"; };
 		B24AA981195A675C007B4522 /* CCFastTMXLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCFastTMXLayer.cpp; sourceTree = "<group>"; };
@@ -4071,7 +4066,6 @@
 				15AE1C1A19AAE3C800C27E9E /* libwebsockets.a in Frameworks */,
 				292F1A6B1A5250F700E479F8 /* libssl.a in Frameworks */,
 				292F1A631A52447100E479F8 /* libcrypto.a in Frameworks */,
-				B217704E1977ED9F009EE11B /* libsqlite3.dylib in Frameworks */,
 				B21770471977ED34009EE11B /* QuartzCore.framework in Frameworks */,
 				B21770451977ED14009EE11B /* Cocoa.framework in Frameworks */,
 				B21770421977ECF8009EE11B /* ApplicationServices.framework in Frameworks */,
@@ -4170,10 +4164,6 @@
 			isa = PBXGroup;
 			children = (
 				2905E9CC1ACD3D8C00092DD2 /* libz.a */,
-				292F1A661A524F2700E479F8 /* libssl.dylib */,
-				B217704C1977ED8B009EE11B /* libsqlite3.dylib */,
-				B217704A1977ED55009EE11B /* libcurl.dylib */,
-				B21770481977ED4C009EE11B /* libz.dylib */,
 				B21770461977ED34009EE11B /* QuartzCore.framework */,
 				B21770431977ED07009EE11B /* Cocoa.framework */,
 				B21770411977ECF8009EE11B /* ApplicationServices.framework */,
