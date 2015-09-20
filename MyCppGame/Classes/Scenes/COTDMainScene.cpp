@@ -78,12 +78,12 @@ MenuItemLabel* COTDMain::createLikeButton()
 
     auto like = Label::createWithTTF("[ like ]", "fonts/arial.ttf", 30);
 
-    this->likeButton = MenuItemLabel::create(like, CC_CALLBACK_1(COTDMain::menuLikeCallback, this));
+    _likeButton = MenuItemLabel::create(like, CC_CALLBACK_1(COTDMain::menuLikeCallback, this));
     
-    this->likeButton->setPosition(Vec2(origin.x + visibleSize.width - like->getContentSize().width,
+    _likeButton->setPosition(Vec2(origin.x + visibleSize.width - like->getContentSize().width,
                                  origin.y + visibleSize.height - like->getContentSize().height));
     
-    return this->likeButton;
+    return _likeButton;
 
 }
 
@@ -94,12 +94,12 @@ MenuItemLabel* COTDMain::createGridButton()
 
     auto grid = Label::createWithTTF("[ grid ]", "fonts/arial.ttf", 30);
     
-    this->gridButton = MenuItemLabel::create(grid, CC_CALLBACK_1(COTDMain::menuGridCallback, this));
+    _gridButton = MenuItemLabel::create(grid, CC_CALLBACK_1(COTDMain::menuGridCallback, this));
     
-    this->gridButton->setPosition(Vec2(origin.x + grid->getContentSize().width,
+    _gridButton->setPosition(Vec2(origin.x + grid->getContentSize().width,
                            origin.y + visibleSize.height - grid->getContentSize().height));
     
-    return this->gridButton;
+    return _gridButton;
 }
 
 void COTDMain::configureTitle()
@@ -122,7 +122,7 @@ void COTDMain::configureTitle()
 
 void COTDMain::configureImage(const std::string &imageName)
 {
-    this->activityIndicator->stopAnimating();
+    _activityIndicator->stopAnimating();
 
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
@@ -163,32 +163,32 @@ void COTDMain::searchGoogle()
 
 void COTDMain::createSpinner()
 {
-    this->activityIndicator = new CCActivityIndicator();
-    this->activityIndicator->init();
-    this->activityIndicator->setBeginCallback(CC_CALLBACK_0(COTDMain::onSpinnerStart, this));
-    this->activityIndicator->setEndCallback(CC_CALLBACK_0(COTDMain::onSpinnerEnd, this));
+    _activityIndicator = new CCActivityIndicator();
+    _activityIndicator->init();
+    _activityIndicator->setBeginCallback(CC_CALLBACK_0(COTDMain::onSpinnerStart, this));
+    _activityIndicator->setEndCallback(CC_CALLBACK_0(COTDMain::onSpinnerEnd, this));
 
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
-    this->activityIndicator->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
-    this->addChild(this->activityIndicator, 1);
+    _activityIndicator->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
+    this->addChild(_activityIndicator, 1);
 }
 
 void COTDMain::onSpinnerStart()
 {
-    this->likeButton->setEnabled(false);
-    this->gridButton->setEnabled(false);
+    _likeButton->setEnabled(false);
+    _gridButton->setEnabled(false);
 }
 
 void COTDMain::onSpinnerEnd()
 {
-    this->likeButton->setEnabled(true);
-    this->gridButton->setEnabled(true);
+    _likeButton->setEnabled(true);
+    _gridButton->setEnabled(true);
 }
 
 void COTDMain::queryParse()
 {
-    this->activityIndicator->startAnimating();
+    _activityIndicator->startAnimating();
 
     std::string term;
     COTDParse::sharedInstance()->query(std::bind(&COTDMain::onUpdateImage,
@@ -199,7 +199,7 @@ void COTDMain::queryParse()
 
 void COTDMain::menuLikeCallback(Ref* pSender)
 {
-    this->activityIndicator->startAnimating();
+    _activityIndicator->startAnimating();
 
     COTDParse::sharedInstance()->likeCurrentImage(std::bind(&COTDMain::onLikeCurrentImage,
                                                             this,
@@ -210,7 +210,7 @@ void COTDMain::menuLikeCallback(Ref* pSender)
 
 void COTDMain::menuGridCallback(Ref* pSender)
 {
-    this->activityIndicator->startAnimating();
+    _activityIndicator->startAnimating();
 
     auto scene = COTDGrid::createScene();
     auto director = Director::getInstance();
@@ -219,7 +219,7 @@ void COTDMain::menuGridCallback(Ref* pSender)
 
 void COTDMain::onExit()
 {
-    this->activityIndicator->stopAnimating();
+    _activityIndicator->stopAnimating();
 }
 
 void COTDMain::menuCloseCallback(Ref* pSender)
@@ -273,28 +273,28 @@ void COTDMain::download(const COTDImage *currentUserImage)
     
     // File does not exist, download.
     
-    this->downloader = std::make_shared<cocos2d::extension::Downloader>();
+    _downloader = std::make_shared<cocos2d::extension::Downloader>();
 
-    this->downloader->setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
+    _downloader->setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
     
-    this->downloader->setErrorCallback(std::bind(&COTDMain::onError,
+    _downloader->setErrorCallback(std::bind(&COTDMain::onError,
                                                  this,
                                                  std::placeholders::_1));
     
-    this->downloader->setProgressCallback(std::bind(&COTDMain::onProgress,
+    _downloader->setProgressCallback(std::bind(&COTDMain::onProgress,
                                                     this,
                                                     std::placeholders::_1,
                                                     std::placeholders::_2,
                                                     std::placeholders::_3,
                                                     std::placeholders::_4));
     
-    this->downloader->setSuccessCallback(std::bind(&COTDMain::onSuccess,
+    _downloader->setSuccessCallback(std::bind(&COTDMain::onSuccess,
                                                    this,
                                                    std::placeholders::_1,
                                                    std::placeholders::_2,
                                                    std::placeholders::_3));
     
-    this->downloader->downloadAsync(currentUserImage->getFullUrl(), storagePath);
+    _downloader->downloadAsync(currentUserImage->getFullUrl(), storagePath);
 }
 
 void COTDMain::googleSearchCallback(bool succeeded,
@@ -332,7 +332,7 @@ void COTDMain::googleSearchCallback(bool succeeded,
 
 void COTDMain::onLikeCurrentImage(bool succeeded, std::strstream& error)
 {
-    this->activityIndicator->stopAnimating();
+    _activityIndicator->stopAnimating();
 }
 
 void COTDMain::onUpdateImage(bool succeeded, std::strstream& error)

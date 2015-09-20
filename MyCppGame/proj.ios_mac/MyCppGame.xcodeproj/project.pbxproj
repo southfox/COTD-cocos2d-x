@@ -58,6 +58,10 @@
 		521A8EAA19F11F5000D177D7 /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 521A8EA819F11F5000D177D7 /* fonts */; };
 		52B47A471A53D09C004E4C60 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52B47A461A53D09B004E4C60 /* Security.framework */; };
 		8262943E1AAF051F00CB7CF7 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8262943D1AAF051F00CB7CF7 /* Security.framework */; };
+		954D6DF51BAC9DFC00F929F4 /* COTDCollectionView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 954D6DF31BAC9DFC00F929F4 /* COTDCollectionView.cpp */; };
+		954D6DF61BAC9DFC00F929F4 /* COTDCollectionView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 954D6DF31BAC9DFC00F929F4 /* COTDCollectionView.cpp */; };
+		954D6DFA1BACA58C00F929F4 /* COTDCollectionViewCell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 954D6DF81BACA58C00F929F4 /* COTDCollectionViewCell.cpp */; };
+		954D6DFB1BACA58C00F929F4 /* COTDCollectionViewCell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 954D6DF81BACA58C00F929F4 /* COTDCollectionViewCell.cpp */; };
 		956C1F8B1B6373EB00C496A9 /* capybara.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 956C1F8A1B6373EB00C496A9 /* capybara.jpg */; };
 		956C1F8C1B6373EB00C496A9 /* capybara.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 956C1F8A1B6373EB00C496A9 /* capybara.jpg */; };
 		956C1F961B63831300C496A9 /* COTDGridScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 956C1F921B63831300C496A9 /* COTDGridScene.cpp */; };
@@ -198,6 +202,10 @@
 		521A8EA819F11F5000D177D7 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fonts; sourceTree = "<group>"; };
 		52B47A461A53D09B004E4C60 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		8262943D1AAF051F00CB7CF7 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		954D6DF31BAC9DFC00F929F4 /* COTDCollectionView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = COTDCollectionView.cpp; path = ../CollectionView/COTDCollectionView.cpp; sourceTree = "<group>"; };
+		954D6DF41BAC9DFC00F929F4 /* COTDCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = COTDCollectionView.h; path = ../CollectionView/COTDCollectionView.h; sourceTree = "<group>"; };
+		954D6DF81BACA58C00F929F4 /* COTDCollectionViewCell.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = COTDCollectionViewCell.cpp; path = ../CollectionView/COTDCollectionViewCell.cpp; sourceTree = "<group>"; };
+		954D6DF91BACA58C00F929F4 /* COTDCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = COTDCollectionViewCell.h; path = ../CollectionView/COTDCollectionViewCell.h; sourceTree = "<group>"; };
 		956C1F8A1B6373EB00C496A9 /* capybara.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = capybara.jpg; sourceTree = "<group>"; };
 		956C1F921B63831300C496A9 /* COTDGridScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = COTDGridScene.cpp; sourceTree = "<group>"; };
 		956C1F931B63831300C496A9 /* COTDGridScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = COTDGridScene.h; sourceTree = "<group>"; };
@@ -372,6 +380,7 @@
 		46880B8319C43A87006E1F66 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				954D6DF71BAC9E0600F929F4 /* Collection */,
 				956C1F911B63831300C496A9 /* Scenes */,
 				956C1FA31B6389A900C496A9 /* Singleton */,
 				956C1FB61B6391C700C496A9 /* Util */,
@@ -430,6 +439,18 @@
 			name = Icons;
 			path = ios;
 			sourceTree = SOURCE_ROOT;
+		};
+		954D6DF71BAC9E0600F929F4 /* Collection */ = {
+			isa = PBXGroup;
+			children = (
+				954D6DF91BACA58C00F929F4 /* COTDCollectionViewCell.h */,
+				954D6DF81BACA58C00F929F4 /* COTDCollectionViewCell.cpp */,
+				954D6DF41BAC9DFC00F929F4 /* COTDCollectionView.h */,
+				954D6DF31BAC9DFC00F929F4 /* COTDCollectionView.cpp */,
+			);
+			name = Collection;
+			path = Scenes;
+			sourceTree = "<group>";
 		};
 		956C1F911B63831300C496A9 /* Scenes */ = {
 			isa = PBXGroup;
@@ -696,6 +717,7 @@
 			files = (
 				956C1F961B63831300C496A9 /* COTDGridScene.cpp in Sources */,
 				956C1FBC1B6391C700C496A9 /* COTDDateType.cpp in Sources */,
+				954D6DF51BAC9DFC00F929F4 /* COTDCollectionView.cpp in Sources */,
 				46880B8819C43A87006E1F66 /* AppDelegate.cpp in Sources */,
 				956C1FAC1B6389A900C496A9 /* COTDGoogle.cpp in Sources */,
 				503AE10017EB989F00D1A890 /* AppController.mm in Sources */,
@@ -705,6 +727,7 @@
 				956C1FA11B63833E00C496A9 /* COTDUserImage.cpp in Sources */,
 				956C1F9F1B63833E00C496A9 /* COTDImage.cpp in Sources */,
 				95E3619F1B72D3F4005396F7 /* CCActivityIndicator.cpp in Sources */,
+				954D6DFA1BACA58C00F929F4 /* COTDCollectionViewCell.cpp in Sources */,
 				503AE10217EB989F00D1A890 /* RootViewController.mm in Sources */,
 				503AE10117EB989F00D1A890 /* main.m in Sources */,
 				95F978CB1B64D4A8008DB7D2 /* COTDParse.cpp in Sources */,
@@ -719,8 +742,10 @@
 				956C1FA21B63833E00C496A9 /* COTDUserImage.cpp in Sources */,
 				956C1FAD1B6389A900C496A9 /* COTDGoogle.cpp in Sources */,
 				46880B8919C43A87006E1F66 /* AppDelegate.cpp in Sources */,
+				954D6DFB1BACA58C00F929F4 /* COTDCollectionViewCell.cpp in Sources */,
 				956C1FBD1B6391C700C496A9 /* COTDDateType.cpp in Sources */,
 				956C1FBF1B6391C700C496A9 /* COTDLog.cpp in Sources */,
+				954D6DF61BAC9DFC00F929F4 /* COTDCollectionView.cpp in Sources */,
 				95F978CC1B64D4A8008DB7D2 /* COTDParse.cpp in Sources */,
 				95F07D8F1B6881D0004B3AA2 /* COTDCommon.mm in Sources */,
 				503AE10517EB98FF00D1A890 /* main.cpp in Sources */,

@@ -14,10 +14,10 @@ using namespace cocos2d;
 class COTDMain : public cocos2d::Layer
 {
 protected:
-    std::shared_ptr<cocos2d::extension::Downloader> downloader;
-    CCActivityIndicator *activityIndicator;
-    MenuItemLabel *likeButton;
-    MenuItemLabel *gridButton;
+    std::shared_ptr<cocos2d::extension::Downloader> _downloader;
+    CCActivityIndicator *_activityIndicator;
+    MenuItemLabel *_likeButton;
+    MenuItemLabel *_gridButton;
 
 private:
     MenuItemImage* createCloseButton();

@@ -2,6 +2,8 @@
 #include "COTDGridScene.h"
 #include "COTDParse.h"
 #include "COTDLog.h"
+#include "COTDCollectionView.h"
+#include "COTDCollectionViewCell.h"
 
 Scene* COTDGrid::createScene()
 {
@@ -27,6 +29,7 @@ bool COTDGrid::init()
     {
         return false;
     }
+    
     COTDGrid::queryParse();
     
     COTDGrid::configureMenu();
@@ -37,6 +40,8 @@ bool COTDGrid::init()
     
     COTDGrid::configureMenu();
     
+    COTDGrid::showCollection();
+
     return true;
 }
 
@@ -106,5 +111,80 @@ void COTDGrid::menuBackCallback(Ref* pSender)
 {
     auto director = Director::getInstance();
     director->popToRootScene();
+}
+
+
+#define COLLECTIONVIEW_WIDHT 1024
+#define COLLECTIONVIEW_HEIGHT 768
+
+
+void COTDGrid::showCollection()
+{
+    Size winSize = Director::getInstance()->getWinSize();
+    
+    COTDCollectionView* collectionView = COTDCollectionView::create(this,this, Size(COLLECTIONVIEW_WIDHT, COLLECTIONVIEW_HEIGHT));
+    collectionView->setMultipleSelectEnabled(true);
+    collectionView->setDirection(ScrollView::Direction::VERTICAL);
+    collectionView->setAnchorPoint(Point(0.5f, 0.5f));
+    collectionView->setPosition(Point(winSize.width*0.5f-COLLECTIONVIEW_WIDHT*0.5f, winSize.height*0.5f-COLLECTIONVIEW_HEIGHT*0.5f));
+    collectionView->setBackGroundViewWithFile("natural_0.png");
+    
+    this->addChild(collectionView);
+    collectionView->reloadData();
+}
+
+#pragma mark - CollectionViewDelegate
+void COTDGrid::collectionCellTouched(COTDCollectionView* collection, COTDCollectionViewCell* cell)
+{
+    CCLOG("cell touched at index: %ld", cell->getIdx());
+    
+    std::set<ssize_t>* selectedIndices = collection->getSelectedIndices();
+    CCLOG("getSelectedIndices:");
+    for (const ssize_t index : *selectedIndices)
+    {
+        CCLOG("%ld", index);
+    }
+}
+
+
+Size COTDGrid::collectionCellSizeForIndex(COTDCollectionView *collection, ssize_t idx)
+{
+    return Size(114, 114);
+}
+
+float COTDGrid::leftSideSpaceForCollection(COTDCollectionView* collection)
+{
+    return 0;
+}
+
+float COTDGrid::upSideSpaceForCollection(COTDCollectionView* collection)
+{
+    return 0;
+}
+
+#pragma mark - CollectionViewDataSource
+COTDCollectionViewCell* COTDGrid::collectionCellAtIndex(COTDCollectionView *collection, ssize_t idx)
+{
+    auto string = String::createWithFormat("%ld", idx);
+    COTDCollectionViewCell *cell = collection->dequeueCell();
+    if (!cell) {
+        cell = COTDCollectionViewCell::create("Icon.png");
+        auto label = LabelTTF::create(string->getCString(), "Helvetica", 20.0);
+        label->setPosition(Point::ZERO);
+        label->setAnchorPoint(Point::ZERO);
+        label->setTag(123);
+        cell->addChild(label);
+    }
+    else
+    {
+        auto label = (LabelTTF*)cell->getChildByTag(123);
+        label->setString(string->getCString());
+    }
+    return cell;
+}
+
+ssize_t COTDGrid::numberOfCellsInCollection(COTDCollectionView *collection)
+{
+    return 40;
 }
 

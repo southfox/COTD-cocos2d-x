@@ -69,10 +69,10 @@ protected:
         
     COTDParse();
     
-    cocos2d::ValueMap configMap;
+    cocos2d::ValueMap _configMap;
     
-    COTDImage sandboxImage;
-    COTDUserImage sandboxUserImage;
+    COTDImage _sandboxImage;
+    COTDUserImage _sandboxUserImage;
 
 private:
     std::string configFileName();

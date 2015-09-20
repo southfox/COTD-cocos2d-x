@@ -7,7 +7,7 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>4DFD3612-10AA-4BC4-959B-D0865DFD5CA0</string>
 	<key>IDESourceControlProjectName</key>
-	<string>MyCppGame</string>
+	<string>project</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>9950A700CE7301BE78081B418957F5AF3FA5A304</key>
@@ -16,11 +16,11 @@
 		<string>https://github.com/southfox/COTD-cocos2d-x.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>MyCppGame/proj.ios_mac/MyCppGame.xcodeproj</string>
+	<string>MyCppGame/proj.ios_mac/MyCppGame.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>9950A700CE7301BE78081B418957F5AF3FA5A304</key>
-		<string>../../../../MyCppGame/Classes/Extensions/cocos2d-x-extensions</string>
+		<string>../../../..MyCppGame/Classes/Extensions/cocos2d-x-extensions</string>
 		<key>FD9B45296555370E8CE7390A3A16393D1FCC76CB</key>
 		<string>../../../..</string>
 	</dict>

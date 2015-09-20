@@ -81,16 +81,16 @@ private:
 
 public:
 
-   bool status;
+   bool _status;
 
-   void setOk() { status = true; }
+   void setOk() { _status = true; }
 
    /**@name constructors */
    //@{
    /// Default, obtiene la fecha/hora/Centesimas con formatos predefinidos
    COTDDate()
    {
-      status = false;
+      _status = false;
       // Dia: YYYYMMDD
       d = build((char*) "%Y%m%d");
       // Hora: HHMISS

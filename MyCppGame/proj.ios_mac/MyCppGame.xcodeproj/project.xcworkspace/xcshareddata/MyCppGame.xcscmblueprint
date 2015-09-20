@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "FD9B45296555370E8CE7390A3A16393D1FCC76CB",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "9950A700CE7301BE78081B418957F5AF3FA5A304" : 0,
+    "FD9B45296555370E8CE7390A3A16393D1FCC76CB" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "4DFD3612-10AA-4BC4-959B-D0865DFD5CA0",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "9950A700CE7301BE78081B418957F5AF3FA5A304" : "COTD-cocos2d-x\/MyCppGame\/Classes\/Extensions\/cocos2d-x-extensions\/",
+    "FD9B45296555370E8CE7390A3A16393D1FCC76CB" : "COTD-cocos2d-x\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "MyCppGame",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "MyCppGame\/proj.ios_mac\/MyCppGame.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/spalx\/cocos2d-x-extensions",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "9950A700CE7301BE78081B418957F5AF3FA5A304"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/southfox\/COTD-cocos2d-x.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "FD9B45296555370E8CE7390A3A16393D1FCC76CB"
+    }
+  ]
+}

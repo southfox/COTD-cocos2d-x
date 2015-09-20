@@ -6,9 +6,16 @@
 #include "COTDImage.h"
 #include <strstream>
 
+#include "COTDCollectionView.h"
+
+
+//class COTDCollectionView;
+//class COTDCollectionViewDelegate;
+//class COTDCollectionViewDataSource;
+
 using namespace cocos2d;
 
-class COTDGrid : public cocos2d::Layer
+class COTDGrid : public cocos2d::Layer, public COTDCollectionViewDelegate, public COTDCollectionViewDataSource
 {
 
 private:
@@ -24,6 +31,18 @@ private:
     
     // a selector callback
     void menuBackCallback(cocos2d::Ref* pSender);
+    
+    // collection view
+    void showCollection();
+
+    virtual void scrollViewDidScroll(ScrollView* view) {};
+    virtual void scrollViewDidZoom(ScrollView* view) {}
+    virtual void collectionCellTouched(COTDCollectionView* table, COTDCollectionViewCell* cell);
+    virtual cocos2d::Size collectionCellSizeForIndex(COTDCollectionView *collectionView, ssize_t idx);
+    virtual COTDCollectionViewCell* collectionCellAtIndex(COTDCollectionView *collectionView, ssize_t idx);
+    virtual ssize_t numberOfCellsInCollection(COTDCollectionView *collectionView);
+    virtual float leftSideSpaceForCollection(COTDCollectionView* collectionView);
+    virtual float upSideSpaceForCollection(COTDCollectionView* collectionView);
 
 public:
     // there's no 'id' in cpp, so we recommend returning the class instance pointer

@@ -56,7 +56,7 @@ COTDParse::~COTDParse()
 {
     auto fu = cocos2d::FileUtils::getInstance();
     auto plistPath = this->configFileName();
-    fu->writeToFile(this->configMap, plistPath);
+    fu->writeToFile(_configMap, plistPath);
 }
 
 void COTDParse::destroyInstance()
@@ -80,7 +80,7 @@ COTDParse::COTDParse()
     auto fu = cocos2d::FileUtils::getInstance();
     if (fu->isFileExist(plistPath))
     {
-        this->configMap = fu->getValueMapFromFile(plistPath);
+        _configMap = fu->getValueMapFromFile(plistPath);
     }
 }
 
@@ -135,11 +135,11 @@ std::string COTDParse::createUUID()
 
 const cocos2d::Value & COTDParse::atConfigKey(const std::string& key) const
 {
-    if (!this->configMap.size())
+    if (!_configMap.size())
     {
         return cocos2d::Value::Null;
     }
-    return this->configMap.at(key);
+    return _configMap.at(key);
 }
 
 
@@ -179,7 +179,7 @@ void COTDParse::anonymousSignin()
     if (!uuid.length())
     {
         uuid = this->createUUID();
-        this->configMap[kUUIDKeyConfiguration] = uuid;
+        _configMap[kUUIDKeyConfiguration] = uuid;
     }
     std::strstream buf;
     buf << "{ \"authData\": { \"anonymous\": { \"id\": \"" << uuid.c_str() << "\" } } }" << '\0';
@@ -267,12 +267,12 @@ void COTDParse::updateImage(const std::string& imageUrl, const std::string& thum
     auto image = this->isImageRepeated(imageUrl);
     if (image.first)
     {
-        this->sandboxUserImage = COTDUserImage(image.second->getObjectId(), this->now());
-        this->updateUserImage(this->sandboxUserImage, callback);
+        _sandboxUserImage = COTDUserImage(image.second->getObjectId(), this->now());
+        this->updateUserImage(_sandboxUserImage, callback);
     }
     else
     {
-        this->sandboxImage = COTDImage(imageUrl, thumbnailUrl, title);
+        _sandboxImage = COTDImage(imageUrl, thumbnailUrl, title);
         this->updateImage(CC_CALLBACK_2(COTDParse::onHttpRequestCompletedUpdateImage, this));
     }
 
@@ -447,10 +447,10 @@ void COTDParse::updateImage(const cocos2d::network::ccHttpRequestCallback& callb
     
     std::strstream aux;
     aux << "{"
-        << "\"fullUrl\": \"" << this->sandboxImage.getFullUrl().c_str() << "\","
-        << "\"imageTitle\": \"" << this->sandboxImage.getImageTitle().c_str() << "\","
+        << "\"fullUrl\": \"" << _sandboxImage.getFullUrl().c_str() << "\","
+        << "\"imageTitle\": \"" << _sandboxImage.getImageTitle().c_str() << "\","
         << "\"likes\": 0,"
-        << "\"thumbnailUrl\": \"" << this->sandboxImage.getThumbnailUrl().c_str() << "\""
+        << "\"thumbnailUrl\": \"" << _sandboxImage.getThumbnailUrl().c_str() << "\""
         << "}"
         << '\0';
 
@@ -768,7 +768,7 @@ void COTDParse::onHttpRequestCompletedLogout(cocos2d::network::HttpClient *sende
     
     if (succeeded)
     {
-        this->configMap.erase(kSessionTokenKeyConfiguration);
+        _configMap.erase(kSessionTokenKeyConfiguration);
     }
     
     this->destroyInstance();
@@ -786,9 +786,9 @@ void COTDParse::onHttpRequestCompletedAnonymousSignin(cocos2d::network::HttpClie
     
     if (succeeded)
     {
-        this->configMap[kObjectIdKeyConfiguration] = objectId;
-        this->configMap[kSessionTokenKeyConfiguration] = sessionToken;
-        this->configMap[kUsernameKeyConfiguration] = username;
+        _configMap[kObjectIdKeyConfiguration] = objectId;
+        _configMap[kSessionTokenKeyConfiguration] = sessionToken;
+        _configMap[kUsernameKeyConfiguration] = username;
         
         this->queryImages();
     }
@@ -864,7 +864,7 @@ void COTDParse::onHttpRequestCompletedUpdateUserImage(cocos2d::network::HttpClie
     
     if (succeeded)
     {
-        this->userImages.push_back(this->sandboxUserImage);
+        this->userImages.push_back(_sandboxUserImage);
     }
     
     if (this->callbackUpdateImage)
@@ -883,15 +883,15 @@ void COTDParse::onHttpRequestCompletedUpdateImage(cocos2d::network::HttpClient *
     
     if (succeeded)
     {
-        this->sandboxImage.setObjectId(objectId);
-        this->images.push_back(this->sandboxImage);
-        this->sandboxUserImage = COTDUserImage(this->sandboxImage.getObjectId(), this->now());
+        _sandboxImage.setObjectId(objectId);
+        this->images.push_back(_sandboxImage);
+        _sandboxUserImage = COTDUserImage(_sandboxImage.getObjectId(), this->now());
     }
     if (this->callbackUpdateImage)
     {
         if (succeeded)
         {
-            this->updateUserImage(this->sandboxUserImage, this->callbackUpdateImage);
+            this->updateUserImage(_sandboxUserImage, this->callbackUpdateImage);
         }
         else
         {
