@@ -6,16 +6,13 @@
 #include "COTDImage.h"
 #include <strstream>
 
-#include "COTDCollectionView.h"
 
-
-//class COTDCollectionView;
-//class COTDCollectionViewDelegate;
-//class COTDCollectionViewDataSource;
+USING_NS_CC;
+using namespace std;
 
 using namespace cocos2d;
 
-class COTDGrid : public cocos2d::Layer, public COTDCollectionViewDelegate, public COTDCollectionViewDataSource
+class COTDGrid : public cocos2d::Layer
 {
 
 private:
@@ -26,7 +23,7 @@ private:
     
     void queryParse();
     void parseQueryCallback(bool succeeded,
-                            std::strstream& error,
+                            strstream& error,
                             const COTDImage::Vector& vector);
     
     // a selector callback
@@ -35,18 +32,9 @@ private:
     // collection view
     void showCollection();
 
-    virtual void scrollViewDidScroll(ScrollView* view) {};
-    virtual void scrollViewDidZoom(ScrollView* view) {}
-    virtual void collectionCellTouched(COTDCollectionView* table, COTDCollectionViewCell* cell);
-    virtual cocos2d::Size collectionCellSizeForIndex(COTDCollectionView *collectionView, ssize_t idx);
-    virtual COTDCollectionViewCell* collectionCellAtIndex(COTDCollectionView *collectionView, ssize_t idx);
-    virtual ssize_t numberOfCellsInCollection(COTDCollectionView *collectionView);
-    virtual float leftSideSpaceForCollection(COTDCollectionView* collectionView);
-    virtual float upSideSpaceForCollection(COTDCollectionView* collectionView);
-
 public:
     // there's no 'id' in cpp, so we recommend returning the class instance pointer
-    static cocos2d::Scene* createScene();
+    static Scene* createScene();
 
     // Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
     virtual bool init();
