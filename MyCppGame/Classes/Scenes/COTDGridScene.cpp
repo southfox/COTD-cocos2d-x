@@ -129,72 +129,46 @@ void COTDGrid::showCollection()
     Size winSize = Director::getInstance()->getWinSize();
     //     static HFCollectionView* create(HFCollectionViewDataSource* dataSource, Size size, Node *container);
 
-    HFCollectionView* collectionView = HFCollectionView::create(this, visibleSize, this);
+    HFCollectionView* collectionView = HFCollectionView::create(this, visibleSize, nullptr);
 //    collectionView->setMultipleSelectEnabled(true);
     collectionView->setDirection(ScrollView::Direction::VERTICAL);
-//    this->addChild(collectionView);
+    this->addChild((ScrollView*)collectionView);
     collectionView->reloadData();
+}
+
+int COTDGrid::numberOfItemsInSection(HFCollectionView* collectionView, int section)
+{
+    return 10;
+}
+
+HFCollectionViewCell* COTDGrid::cellForItemAtIndexPath(HFCollectionView *collectionView, const HFIndexPath& indexPath)
+{
+    char aux[10];
+    sprintf(aux, "%zd", indexPath.row);
+    HFCollectionViewCell *cell = collectionView->dequeueCell();
+    if (!cell)
+    {
+        cell = new HFCollectionViewCell();
+        cell->autorelease();
+        Sprite *sprite = Sprite::create("Icon-144.png");
+        sprite->setAnchorPoint(Point::ZERO);
+        sprite->setPosition(Vec2(0, 0));
+        cell->addChild(sprite);
+        
+        auto label = Label::createWithTTF(aux, "fonts/arial.ttf", 15);
+        label->setPosition(Point::ZERO);
+        label->setAnchorPoint(Point::ZERO);
+        label->setTag(123);
+        cell->addChild(label);
+    }
+    else
+    {
+        Label* label = (Label*)cell->getChildByTag(123);
+        label->setString(aux);
+    }
+    return cell;
 }
 
 #pragma mark -
 #pragma mark collection data source
-
-#if 0
-int COTDGrid::numberOfItemsInSection(HFCollectionView* collectionView, int section)
-{
-    return 10;
-}
-
-//int COTDGrid::numberOfSectionsInCollectionView(HFCollectionView * collectionView)
-//{
-//    return 1;
-//}
-
-Size COTDGrid::collectionCellSizeForIndex(HFCollectionView *collection, ssize_t idx)
-{
-    return Size(100,100);
-};
-
-Size COTDGrid::cellSizeForCollection(HFCollectionView *collection) {
-    return Size(100,100);
-};
-
-HFCollectionViewCell* COTDGrid::collectionViewCellAtIndex(HFCollectionView *collectionView, ssize_t idx)
-{
-    return nullptr;
-}
-
-//// Information about the current state of the collection view.
-//ssize_t COTDGrid::numberOfCellsInCollectionView(HFCollectionView *collectionView)
-//{
-//    return 10;
-//}
-
-
-#pragma mark -
-#pragma mark delegate
-
-
-void COTDGrid::collectionCellTouched(HFCollectionView* collectionView, HFCollectionViewCell* cell)
-{
-    
-}
-
-#endif
-
-void COTDGrid::collectionCellTouched(HFCollectionView* collectionView, HFCollectionViewCell* cell)
-{
-    
-}
-
-HFCollectionViewCell* COTDGrid::collectionViewCellAtIndex(HFCollectionView *collectionView, ssize_t idx)
-{
-    return nullptr;
-}
-
-int COTDGrid::numberOfItemsInSection(HFCollectionView* collectionView, int section)
-{
-    return 10;
-}
-
 

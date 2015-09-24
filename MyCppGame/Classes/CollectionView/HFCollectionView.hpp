@@ -19,26 +19,26 @@ struct HFIndexPath {
     int row;
 };
 
+
 class HFCollectionView;
 class HFCollectionViewCell;
 
 class HFCollectionViewDataSource
 {
 public:
+//    HFCollectionViewDataSource() {}
 //    virtual ~HFCollectionViewDataSource() {}
 
     // Required
     // --------
     
-    virtual int numberOfItemsInSection(HFCollectionView* collectionView, int section);
+    // Information about the current state of the collection view.
 
-    // The cell that is returned must be retrieved from a call to -dequeueReusableCellWithReuseIdentifier:forIndexPath:
-//    virtual HFCollectionViewCell* cellForItemAtIndexPath(HFCollectionView* collectionView, HFIndexPath *index);
-  
+    virtual int numberOfItemsInSection(HFCollectionView* collectionView, int section) = 0;
+
     
     // Optional
     // --------
-    
 //    virtual int numberOfSectionsInCollectionView(HFCollectionView * collectionView) = 0;
     
     virtual Size collectionCellSizeForIndex(HFCollectionView *collection, ssize_t idx) {
@@ -49,10 +49,7 @@ public:
         return Size::ZERO;
     };
 
-    virtual HFCollectionViewCell* collectionViewCellAtIndex(HFCollectionView *collectionView, ssize_t idx) = 0;
-
-    // Information about the current state of the collection view.
-//    virtual ssize_t numberOfCellsInCollectionView(HFCollectionView *collectionView) = 0;
+    virtual HFCollectionViewCell* cellForItemAtIndexPath(HFCollectionView* collectionView, const HFIndexPath& indexPath) = 0;
 
 };
 
@@ -67,7 +64,6 @@ public:
     virtual void collectionCellHighlight(HFCollectionView* collectionView, HFCollectionViewCell* cell){};
     virtual void collectionCellUnhighlight(HFCollectionView* collectionView, HFCollectionViewCell* cell){};
     virtual void collectionCellTouched(HFCollectionView* collectionView, HFCollectionViewCell* cell) = 0;
-
 
 };
 
@@ -148,11 +144,12 @@ public:
     virtual ~HFCollectionView();
 
     bool initWithSize(Size size, Node* container = NULL);
-    static HFCollectionView* create(HFCollectionViewDataSource* dataSource, Size size, Node *container);
+    static HFCollectionView* create(HFCollectionViewDataSource* dataSource, Size size, Node *container = nullptr);
 
 //    void selectItemAtIndexPath(HFIndexPath* indexPath, bool animated);
 //    void deselectItemAtIndexPath(HFIndexPath* indexPath, bool animated);
     
+    HFCollectionViewCell *dequeueCell();
     void reloadData(); // discard the dataSource and delegate data and requery as necessary
 
 //    HFIndexPath *indexPathForItemAtPoint(Point point);

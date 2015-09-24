@@ -31,10 +31,10 @@ HFCollectionView::~HFCollectionView()
 }
 
 
-HFCollectionView* HFCollectionView::create(HFCollectionViewDataSource* dataSource, Size size, Node *container)
+HFCollectionView* HFCollectionView::create(HFCollectionViewDataSource* dataSource, Size size, Node *container /* nullptr */)
 {
     HFCollectionView *collection = new (std::nothrow) HFCollectionView();
-    if (collection->initWithViewSize(size, container))
+    if (collection->initWithSize(size, container))
     {
         ((ScrollView*)collection)->autorelease();
         collection->setDataSource(dataSource);
@@ -83,6 +83,22 @@ void HFCollectionView::setVerticalFillOrder(VerticalFillOrder fillOrder)
 //{
 //    
 //}
+
+HFCollectionViewCell *HFCollectionView::dequeueCell()
+{
+    HFCollectionViewCell *cell;
+    
+    if (_cellsFreed.empty()) {
+        cell = nullptr;
+    } else {
+        cell = _cellsFreed.at(0);
+        cell->retain();
+        _cellsFreed.erase(0);
+        cell->autorelease();
+    }
+    return cell;
+}
+
 
 
 void HFCollectionView::reloadData()
@@ -316,7 +332,10 @@ void HFCollectionView::_updateCellAtIndex(ssize_t idx)
     {
         this->_moveCellOutOfSight(cell);
     }
-    cell = _dataSource->collectionViewCellAtIndex(this, idx);
+    HFIndexPath indexPath;
+    indexPath.row = (int)idx;
+    indexPath.section = 0;
+    cell = _dataSource->cellForItemAtIndexPath(this, indexPath);
     this->_setIndexForCell(idx, cell);
     this->_addCellIfNecessary(cell);
 }
@@ -496,6 +515,7 @@ void HFCollectionView::scrollViewDidScroll(ScrollView* view)
         {
             continue;
         }
+        HFIndexPath indexPath;
         this->_updateCellAtIndex(i);
     }
 }
