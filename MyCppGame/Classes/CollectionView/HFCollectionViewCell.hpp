@@ -52,17 +52,29 @@ protected:
     HFView *_backgroundView;
     HFView *_selectedBackgroundView;
 
+    ssize_t _idx;
+
 public:
+//    CREATE_FUNC(HFCollectionViewCell);
+    
+    HFCollectionViewCell() {}
+
     HFView *contentView();
 
     bool isSelected();
+    void setSelected(bool value);
     bool isHighlighted();
+    void setHighlighted(bool value);
 
 // The background view is a subview behind all other views.
 // If selectedBackgroundView is different than backgroundView, it will be placed above the background view and animated in on selection.
     HFView *backgroundView();
     HFView *selectedBackgroundView();
 
+    ssize_t getIdx() const;
+    void setIdx(ssize_t uIdx);
+    void reset();
+    
 };
 
 

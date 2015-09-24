@@ -2,8 +2,8 @@
 #include "COTDGridScene.h"
 #include "COTDParse.h"
 #include "COTDLog.h"
-//#include "COTDCollectionView.h"
-//#include "COTDCollectionViewCell.h"
+#include "HFCollectionView.hpp"
+#include "HFCollectionViewCell.hpp"
 
 USING_NS_CC;
 
@@ -124,23 +124,77 @@ void COTDGrid::menuBackCallback(Ref* pSender)
 void COTDGrid::showCollection()
 {
 
-//    Size visibleSize = Director::getInstance()->getVisibleSize();
-//    Vec2 origin = Director::getInstance()->getVisibleOrigin();
-//    Size winSize = Director::getInstance()->getWinSize();
-    
-//    COTDCollectionView* collectionView = COTDCollectionView::create(this, this, visibleSize);
+    Size visibleSize = Director::getInstance()->getVisibleSize();
+    Vec2 origin = Director::getInstance()->getVisibleOrigin();
+    Size winSize = Director::getInstance()->getWinSize();
+    //     static HFCollectionView* create(HFCollectionViewDataSource* dataSource, Size size, Node *container);
+
+    HFCollectionView* collectionView = HFCollectionView::create(this, visibleSize, this);
 //    collectionView->setMultipleSelectEnabled(true);
-//    collectionView->setDirection(ScrollView::Direction::VERTICAL);
-////    collectionView->setAnchorPoint(Point(0.5f, 0.5f));
-////    collectionView->setPosition(Point(winSize.width*0.5f-COLLECTIONVIEW_WIDHT*0.5f, winSize.height*0.5f-COLLECTIONVIEW_HEIGHT*0.5f));
-////    collectionView->setBackGroundViewWithFile("HelloWorld.png");
-//    
-//
-////    collectionView->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
-////    collectionView->setScale((visibleSize.width - 50)/sprite->getContentSize().width);
-//
-//    
+    collectionView->setDirection(ScrollView::Direction::VERTICAL);
 //    this->addChild(collectionView);
-//    collectionView->reloadData();
+    collectionView->reloadData();
 }
+
+#pragma mark -
+#pragma mark collection data source
+
+#if 0
+int COTDGrid::numberOfItemsInSection(HFCollectionView* collectionView, int section)
+{
+    return 10;
+}
+
+//int COTDGrid::numberOfSectionsInCollectionView(HFCollectionView * collectionView)
+//{
+//    return 1;
+//}
+
+Size COTDGrid::collectionCellSizeForIndex(HFCollectionView *collection, ssize_t idx)
+{
+    return Size(100,100);
+};
+
+Size COTDGrid::cellSizeForCollection(HFCollectionView *collection) {
+    return Size(100,100);
+};
+
+HFCollectionViewCell* COTDGrid::collectionViewCellAtIndex(HFCollectionView *collectionView, ssize_t idx)
+{
+    return nullptr;
+}
+
+//// Information about the current state of the collection view.
+//ssize_t COTDGrid::numberOfCellsInCollectionView(HFCollectionView *collectionView)
+//{
+//    return 10;
+//}
+
+
+#pragma mark -
+#pragma mark delegate
+
+
+void COTDGrid::collectionCellTouched(HFCollectionView* collectionView, HFCollectionViewCell* cell)
+{
+    
+}
+
+#endif
+
+void COTDGrid::collectionCellTouched(HFCollectionView* collectionView, HFCollectionViewCell* cell)
+{
+    
+}
+
+HFCollectionViewCell* COTDGrid::collectionViewCellAtIndex(HFCollectionView *collectionView, ssize_t idx)
+{
+    return nullptr;
+}
+
+int COTDGrid::numberOfItemsInSection(HFCollectionView* collectionView, int section)
+{
+    return 10;
+}
+
 
