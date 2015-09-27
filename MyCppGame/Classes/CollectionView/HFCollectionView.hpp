@@ -14,11 +14,6 @@
 //#include <extensions/GUI/ScrollView/CCScrollView.h>
 #include "cocos-ext.h"
 
-struct HFIndexPath {
-    int section;
-    int row;
-};
-
 
 class HFCollectionView;
 class HFCollectionViewCell;
@@ -26,22 +21,22 @@ class HFCollectionViewCell;
 class HFCollectionViewDataSource
 {
 public:
-//    HFCollectionViewDataSource() {}
-//    virtual ~HFCollectionViewDataSource() {}
 
     // Required
     // --------
     
     // Information about the current state of the collection view.
 
-    virtual int numberOfItemsInSection(HFCollectionView* collectionView, int section) = 0;
-
+    virtual int numberOfRowsInColumn(HFCollectionView* collectionView, int column) = 0;
     
     // Optional
     // --------
-//    virtual int numberOfSectionsInCollectionView(HFCollectionView * collectionView) = 0;
+    virtual int numberOfColumnsInCollectionView(HFCollectionView * collectionView)
+    {
+        return 1;
+    };
     
-    virtual Size collectionCellSizeForIndex(HFCollectionView *collection, ssize_t idx) {
+    virtual Size collectionCellSizeForIndex(HFCollectionView *collection, const HFIndexPath& indexPath) {
         return cellSizeForCollection(collection);
     };
 
@@ -93,12 +88,13 @@ protected:
     /**
      * index set to query the indexes of the cells used.
      */
-    std::set<ssize_t>* _indices;
+    std::set<HFIndexPath *>* _indices;
     
     /**
      * vector with all cell positions
      */
     std::vector<float> _vCellsPositions;
+    std::vector<float> _hCellsPositions;
 
     /**
      * cells that are currently in the collectionView
@@ -122,16 +118,17 @@ protected:
 private:
     
     void _updateContentSize();
+    void _updateContentSize(int column);
     void _updateCellPositions();
-    long __indexFromOffset(Vec2 offset);
-    long _indexFromOffset(Vec2 offset);
-    Vec2 _offsetFromIndex(ssize_t index);
-    Vec2 __offsetFromIndex(ssize_t index);
+    long __indexFromOffset(Vec2 offset, int column);
+    long _indexFromOffset(Vec2 offset, int column);
+    Vec2 _offsetFromIndex(const HFIndexPath& indexPath);
+    Vec2 __offsetFromIndex(const HFIndexPath& indexPath);
 
-    void _updateCellAtIndex(ssize_t idx);
-    HFCollectionViewCell *_cellAtIndex(ssize_t idx);
+    void _updateCellAtIndex(const HFIndexPath& indexPath);
+    HFCollectionViewCell *_cellAtIndex(const HFIndexPath& indexPath);
     void _moveCellOutOfSight(HFCollectionViewCell *cell);
-    void _setIndexForCell(ssize_t index, HFCollectionViewCell *cell);
+    void _setIndexForCell(const HFIndexPath& indexPath, HFCollectionViewCell *cell);
     void _addCellIfNecessary(HFCollectionViewCell * cell);
 
     virtual bool onTouchBegan(Touch *pTouch, Event *pEvent) override;
@@ -171,6 +168,7 @@ public:
 
     // Overrides
     virtual void scrollViewDidScroll(ScrollView* view) override;
+    virtual void scrollViewDidScrollInColumn(ScrollView* view, int column);
 
 };
 

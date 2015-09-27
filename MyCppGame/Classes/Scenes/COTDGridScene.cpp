@@ -127,19 +127,29 @@ void COTDGrid::showCollection()
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     Size winSize = Director::getInstance()->getWinSize();
-    //     static HFCollectionView* create(HFCollectionViewDataSource* dataSource, Size size, Node *container);
 
-    HFCollectionView* collectionView = HFCollectionView::create(this, visibleSize, nullptr);
-//    collectionView->setMultipleSelectEnabled(true);
+    HFCollectionView* collectionView = HFCollectionView::create(this, Size(visibleSize.width-144*2, visibleSize.height-70*2), nullptr);
+    ((ScrollView *)collectionView)->setPosition(Vec2(144,70));
     collectionView->setDirection(ScrollView::Direction::VERTICAL);
     this->addChild((ScrollView*)collectionView);
     collectionView->reloadData();
 }
 
-int COTDGrid::numberOfItemsInSection(HFCollectionView* collectionView, int section)
+
+#pragma mark -
+#pragma mark collection data source
+
+
+int COTDGrid::numberOfRowsInColumn(HFCollectionView* collectionView, int column)
 {
-    return 10;
+    return 5;
 }
+
+int COTDGrid::numberOfColumnsInCollectionView(HFCollectionView * collectionView)
+{
+    return 2;
+}
+
 
 HFCollectionViewCell* COTDGrid::cellForItemAtIndexPath(HFCollectionView *collectionView, const HFIndexPath& indexPath)
 {
@@ -169,6 +179,15 @@ HFCollectionViewCell* COTDGrid::cellForItemAtIndexPath(HFCollectionView *collect
     return cell;
 }
 
-#pragma mark -
-#pragma mark collection data source
+void COTDGrid::collectionCellTouched(HFCollectionView* collectionView, HFCollectionViewCell* cell)
+{
+    return;
+}
+
+Size COTDGrid::cellSizeForCollection(HFCollectionView *collection) {
+    return Size(150,150);
+};
+
+
+
 

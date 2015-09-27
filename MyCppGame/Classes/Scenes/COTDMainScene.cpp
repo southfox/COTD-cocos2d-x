@@ -233,7 +233,7 @@ void COTDMain::menuCloseCallback(Ref* pSender)
 #endif
 }
 
-void COTDMain::onError(const cocos2d::extension::Downloader::Error &error)
+void COTDMain::onDownloadError(const Downloader::Error &error)
 {
     std::strstream s;
     auto currentUserImage = COTDParse::sharedInstance()->currentUserImage();
@@ -242,12 +242,12 @@ void COTDMain::onError(const cocos2d::extension::Downloader::Error &error)
     MessageBox(s.str(), "Error");
 }
 
-void COTDMain::onProgress(double total, double downloaded, const std::string &url, const std::string &customId)
+void COTDMain::onDownloadProgress(double total, double downloaded, const std::string &url, const std::string &customId)
 {
     dbg << "onProgress -> total " << total << ", downloaded: " << downloaded << ", url: " << url << ", customId: " << customId << endl;
 }
 
-void COTDMain::onSuccess(const std::string &srcUrl, const std::string &storagePath, const std::string &customId)
+void COTDMain::onDownloadSuccess(const std::string &srcUrl, const std::string &storagePath, const std::string &customId)
 {
     dbg << "onSuccess -> srcUrl " << srcUrl << ", storagePath: " << storagePath << ", customId: " << customId << endl;
 
@@ -273,22 +273,22 @@ void COTDMain::download(const COTDImage *currentUserImage)
     
     // File does not exist, download.
     
-    _downloader = std::make_shared<cocos2d::extension::Downloader>();
+    _downloader = std::make_shared<Downloader>();
 
     _downloader->setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
     
-    _downloader->setErrorCallback(std::bind(&COTDMain::onError,
+    _downloader->setErrorCallback(std::bind(&COTDMain::onDownloadError,
                                                  this,
                                                  std::placeholders::_1));
     
-    _downloader->setProgressCallback(std::bind(&COTDMain::onProgress,
+    _downloader->setProgressCallback(std::bind(&COTDMain::onDownloadProgress,
                                                     this,
                                                     std::placeholders::_1,
                                                     std::placeholders::_2,
                                                     std::placeholders::_3,
                                                     std::placeholders::_4));
     
-    _downloader->setSuccessCallback(std::bind(&COTDMain::onSuccess,
+    _downloader->setSuccessCallback(std::bind(&COTDMain::onDownloadSuccess,
                                                    this,
                                                    std::placeholders::_1,
                                                    std::placeholders::_2,

@@ -12,6 +12,12 @@
 #include "cocos2d.h"
 #include "base/CCDirector.h"
 
+struct HFIndexPath {
+    int column;
+    int row;
+};
+
+
 USING_NS_CC;
 
 class HFView : public Node

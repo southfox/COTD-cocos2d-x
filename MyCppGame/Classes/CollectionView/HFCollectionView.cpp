@@ -52,7 +52,7 @@ bool HFCollectionView::initWithSize(Size size, Node *container)
     if (ScrollView::initWithViewSize(size, container))
     {
         CC_SAFE_DELETE(_indices);
-        _indices        = new std::set<ssize_t>();
+        _indices        = new std::set<HFIndexPath *>();
         this->setDirection(Direction::VERTICAL);
 
         ScrollView::setDelegate(this);
@@ -126,7 +126,7 @@ void HFCollectionView::reloadData()
     
     this->_updateCellPositions();
     this->_updateContentSize();
-    if (_dataSource->numberOfItemsInSection(this, 0) > 0)
+    if (_dataSource->numberOfRowsInColumn(this, 0) > 0)
     {
         this->scrollViewDidScroll(this);
     }
@@ -135,29 +135,23 @@ void HFCollectionView::reloadData()
 
 // Information about the current state of the collection view.
 
-//HFIndexPath *HFCollectionView::indexPathForItemAtPoint(Point point)
-//{
-//    return nullptr;
-//}
-//
-//HFIndexPath *HFCollectionView::indexPathForCell(HFCollectionViewCell* cell)
-//{
-//    return nullptr;
-//}
-//
-//HFCollectionViewCell *HFCollectionView::cellForItemAtIndexPath(HFIndexPath* indexPath)
-//{
-//    return nullptr;
-//}
-
 
 #pragma mark -
 #pragma mark private
 
 void HFCollectionView::_updateContentSize()
 {
+    for (int c = 0; c < _dataSource->numberOfColumnsInCollectionView(this); c++)
+    {
+        this->_updateContentSize(c);
+    }
+}
+
+void HFCollectionView::_updateContentSize(int column)
+{
     Size size = Size::ZERO;
-    ssize_t cellsCount = _dataSource->numberOfItemsInSection(this, 0);
+
+    ssize_t cellsCount = _dataSource->numberOfRowsInColumn(this, column);
     
     if (cellsCount > 0)
     {
@@ -194,42 +188,47 @@ void HFCollectionView::_updateContentSize()
 
 void HFCollectionView::_updateCellPositions()
 {
-    long cellsCount = _dataSource->numberOfItemsInSection(this, 0);
-    _vCellsPositions.resize(cellsCount + 1, 0.0);
-    
-    if (cellsCount > 0)
+    for (int c = 0; c < _dataSource->numberOfColumnsInCollectionView(this); c++)
     {
-        float currentPos = 0;
-        Size cellSize;
-        for (int i=0; i < cellsCount; i++)
+        long cellsCount = _dataSource->numberOfRowsInColumn(this, c);
+        _vCellsPositions.resize(cellsCount + 1, 0.0);
+        
+        if (cellsCount > 0)
         {
-            _vCellsPositions[i] = currentPos;
-            cellSize = _dataSource->collectionCellSizeForIndex(this, i);
-            switch (this->getDirection())
+            float currentPos = 0;
+            Size cellSize;
+            for (int i = 0; i < cellsCount; i++)
             {
-                case Direction::HORIZONTAL:
-                    currentPos += cellSize.width;
-                    break;
-                default:
-                    currentPos += cellSize.height;
-                    break;
+                _vCellsPositions[i] = currentPos;
+                HFIndexPath indexPath;
+                indexPath.column = c;
+                indexPath.row = (int)i;
+                cellSize = _dataSource->collectionCellSizeForIndex(this, indexPath);
+                switch (this->getDirection())
+                {
+                    case Direction::HORIZONTAL:
+                        currentPos += cellSize.width * (c+1);
+                        break;
+                    default:
+                        currentPos += cellSize.height * (c+1);
+                        break;
+                }
             }
+            _vCellsPositions[cellsCount] = currentPos; // 1 extra value allows us to get right/bottom of the last cell
         }
-        _vCellsPositions[cellsCount] = currentPos; // 1 extra value allows us to get right/bottom of the last cell
     }
-    
 }
 
-long HFCollectionView::_indexFromOffset(Vec2 offset)
+long HFCollectionView::_indexFromOffset(Vec2 offset, int column)
 {
     long index = 0;
-    const long maxIdx = _dataSource->numberOfItemsInSection(this, 0) - 1;
+    const long maxIdx = _dataSource->numberOfRowsInColumn(this, column) - 1;
     
     if (_vordering == VerticalFillOrder::TOP_DOWN)
     {
         offset.y = this->getContainer()->getContentSize().height - offset.y;
     }
-    index = this->__indexFromOffset(offset);
+    index = this->__indexFromOffset(offset, column);
     if (index != -1)
     {
         index = MAX(0, index);
@@ -242,10 +241,10 @@ long HFCollectionView::_indexFromOffset(Vec2 offset)
     return index;
 }
 
-long HFCollectionView::__indexFromOffset(Vec2 offset)
+long HFCollectionView::__indexFromOffset(Vec2 offset, int column)
 {
     long low = 0;
-    long high = _dataSource->numberOfItemsInSection(this, 0) - 1;
+    long high = _dataSource->numberOfRowsInColumn(this, column) - 1;
     float search;
     switch (this->getDirection())
     {
@@ -284,19 +283,32 @@ long HFCollectionView::__indexFromOffset(Vec2 offset)
     return -1;
 }
 
-Vec2 HFCollectionView::_offsetFromIndex(ssize_t index)
+Vec2 HFCollectionView::_offsetFromIndex(const HFIndexPath& indexPath)
 {
-    Vec2 offset = this->__offsetFromIndex(index);
+    Vec2 offset = this->__offsetFromIndex(indexPath);
     
-    const Size cellSize = _dataSource->collectionCellSizeForIndex(this, index);
+    const Size cellSize = _dataSource->collectionCellSizeForIndex(this, indexPath);
+//    const Size viewSize = this->getViewSize();
+    
+//    long high = _dataSource->numberOfRowsInColumn(this, column);
+
     if (_vordering == VerticalFillOrder::TOP_DOWN)
     {
-        offset.y = this->getContainer()->getContentSize().height - offset.y - cellSize.height;
+        offset.y = this->getContainer()->getContentSize().height - offset.y - cellSize.height * (indexPath.column + 1);
+//        if (offset.y + cellSize.height > viewSize.height)
+//        {
+//            offset.y = 0;
+//            offset.x = this->getContainer()->getContentSize().width - offset.x - cellSize.width;
+//        }
+    }
+    else
+    {
+//        offset.x = this->getContainer()->getContentSize().width - offset.x - cellSize.width;
     }
     return offset;
 }
 
-Vec2 HFCollectionView::__offsetFromIndex(ssize_t index)
+Vec2 HFCollectionView::__offsetFromIndex(const HFIndexPath& indexPath)
 {
     Vec2 offset;
     Size  cellSize;
@@ -304,10 +316,10 @@ Vec2 HFCollectionView::__offsetFromIndex(ssize_t index)
     switch (this->getDirection())
     {
         case Direction::HORIZONTAL:
-            offset.set(_vCellsPositions[index], 0.0f);
+            offset.set(_vCellsPositions[indexPath.row], 0.0f);
             break;
         default:
-            offset.set(0.0f, _vCellsPositions[index]);
+            offset.set(0.0f, _vCellsPositions[indexPath.row]);
             break;
     }
     
@@ -315,39 +327,38 @@ Vec2 HFCollectionView::__offsetFromIndex(ssize_t index)
 }
 
 
-void HFCollectionView::_updateCellAtIndex(ssize_t idx)
+void HFCollectionView::_updateCellAtIndex(const HFIndexPath& indexPath)
 {
+    int idx = indexPath.row;
     if (idx == CC_INVALID_INDEX)
     {
         return;
     }
-    long countOfItems = _dataSource->numberOfItemsInSection(this, 0);
+    long countOfItems = _dataSource->numberOfRowsInColumn(this, indexPath.column);
     if (0 == countOfItems || idx > countOfItems-1)
     {
         return;
     }
     
-    HFCollectionViewCell* cell = this->_cellAtIndex(idx);
+    HFCollectionViewCell* cell = this->_cellAtIndex(indexPath);
     if (cell)
     {
         this->_moveCellOutOfSight(cell);
     }
-    HFIndexPath indexPath;
-    indexPath.row = (int)idx;
-    indexPath.section = 0;
     cell = _dataSource->cellForItemAtIndexPath(this, indexPath);
-    this->_setIndexForCell(idx, cell);
+    this->_setIndexForCell(indexPath, cell);
     this->_addCellIfNecessary(cell);
 }
 
 
-HFCollectionViewCell *HFCollectionView::_cellAtIndex(ssize_t idx)
+HFCollectionViewCell *HFCollectionView::_cellAtIndex(const HFIndexPath& indexPath)
 {
-    if (_indices->find(idx) != _indices->end())
+    if (_indices->find((HFIndexPath*)&indexPath) != _indices->end())
     {
         for (const auto& cell : _cellsUsed)
         {
-            if (cell->getIdx() == idx)
+            auto ip = cell->getIndexPath();
+            if (ip.row == indexPath.row && ip.column == indexPath.column)
             {
                 return cell;
             }
@@ -370,7 +381,7 @@ void HFCollectionView::_moveCellOutOfSight(HFCollectionViewCell *cell)
     _cellsUsed.eraseObject(cell);
     _isDirty = true;
     
-    _indices->erase(cell->getIdx());
+    _indices->erase((HFIndexPath*)&cell->getIndexPath());
     cell->reset();
     
     if (cell->getParent() == this->getContainer())
@@ -380,11 +391,11 @@ void HFCollectionView::_moveCellOutOfSight(HFCollectionViewCell *cell)
 }
 
 
-void HFCollectionView::_setIndexForCell(ssize_t index, HFCollectionViewCell *cell)
+void HFCollectionView::_setIndexForCell(const HFIndexPath& indexPath, HFCollectionViewCell *cell)
 {
     cell->setAnchorPoint(Vec2(0.0f, 0.0f));
-    cell->setPosition(this->_offsetFromIndex(index));
-    cell->setIdx(index);
+    cell->setPosition(this->_offsetFromIndex(indexPath));
+    cell->setIndexPath(indexPath);
 }
 
 void HFCollectionView::_addCellIfNecessary(HFCollectionViewCell * cell)
@@ -394,7 +405,7 @@ void HFCollectionView::_addCellIfNecessary(HFCollectionViewCell * cell)
         this->getContainer()->addChild(cell);
     }
     _cellsUsed.pushBack(cell);
-    _indices->insert(cell->getIdx());
+    _indices->insert((HFIndexPath*)&cell->getIndexPath());
     _isDirty = true;
 }
 
@@ -402,7 +413,16 @@ void HFCollectionView::_addCellIfNecessary(HFCollectionViewCell * cell)
 #pragma mark ScrollView overrides
 void HFCollectionView::scrollViewDidScroll(ScrollView* view)
 {
-    long countOfItems = _dataSource->numberOfItemsInSection(this, 0);
+    long columns = _dataSource->numberOfColumnsInCollectionView(this);
+    for (int column = 0; column < columns; column++)
+    {
+        this->scrollViewDidScrollInColumn(view, column);
+    }
+}
+
+void HFCollectionView::scrollViewDidScrollInColumn(ScrollView* view, int column)
+{
+    long countOfItems = _dataSource->numberOfRowsInColumn(this, column);
     if (0 == countOfItems)
     {
         return;
@@ -412,7 +432,7 @@ void HFCollectionView::scrollViewDidScroll(ScrollView* view)
     {
         _isDirty = false;
         std::sort(_cellsUsed.begin(), _cellsUsed.end(), [](HFCollectionViewCell *a, HFCollectionViewCell *b) -> bool{
-            return a->getIdx() < b->getIdx();
+            return a->getIndexPath().column < b->getIndexPath().column && a->getIndexPath().row < b->getIndexPath().row;
         });
     }
     
@@ -428,7 +448,7 @@ void HFCollectionView::scrollViewDidScroll(ScrollView* view)
     {
         offset.y = offset.y + _viewSize.height/this->getContainer()->getScaleY();
     }
-    startIdx = this->_indexFromOffset(offset);
+    startIdx = this->_indexFromOffset(offset, column);
     if (startIdx == CC_INVALID_INDEX)
     {
         startIdx = countOfItems - 1;
@@ -444,7 +464,7 @@ void HFCollectionView::scrollViewDidScroll(ScrollView* view)
     }
     offset.x += _viewSize.width/this->getContainer()->getScaleX();
     
-    endIdx   = this->_indexFromOffset(offset);
+    endIdx   = this->_indexFromOffset(offset, column);
     if (endIdx == CC_INVALID_INDEX)
     {
         endIdx = countOfItems - 1;
@@ -473,7 +493,7 @@ void HFCollectionView::scrollViewDidScroll(ScrollView* view)
     if (!_cellsUsed.empty())
     {
         auto cell = _cellsUsed.at(0);
-        idx = cell->getIdx();
+        idx = cell->getIndexPath().row;
         
         while(idx < startIdx)
         {
@@ -481,7 +501,7 @@ void HFCollectionView::scrollViewDidScroll(ScrollView* view)
             if (!_cellsUsed.empty())
             {
                 cell = _cellsUsed.at(0);
-                idx = cell->getIdx();
+                idx = cell->getIndexPath().row;
             }
             else
             {
@@ -492,7 +512,7 @@ void HFCollectionView::scrollViewDidScroll(ScrollView* view)
     if (!_cellsUsed.empty())
     {
         auto cell = _cellsUsed.back();
-        idx = cell->getIdx();
+        idx = cell->getIndexPath().row;
         
         while(idx <= maxIdx && idx > endIdx)
         {
@@ -500,7 +520,7 @@ void HFCollectionView::scrollViewDidScroll(ScrollView* view)
             if (!_cellsUsed.empty())
             {
                 cell = _cellsUsed.back();
-                idx = cell->getIdx();
+                idx = cell->getIndexPath().row;
             }
             else
             {
@@ -511,12 +531,14 @@ void HFCollectionView::scrollViewDidScroll(ScrollView* view)
     
     for (long i = startIdx; i <= endIdx; i++)
     {
-        if (_indices->find(i) != _indices->end())
+        HFIndexPath indexPath;
+        indexPath.column = column;
+        indexPath.row = (int)i;
+        if (_indices->find(&indexPath) != _indices->end())
         {
             continue;
         }
-        HFIndexPath indexPath;
-        this->_updateCellAtIndex(i);
+        this->_updateCellAtIndex(indexPath);
     }
 }
 
@@ -564,19 +586,26 @@ bool HFCollectionView::onTouchBegan(Touch *pTouch, Event *pEvent)
     
     if(_touches.size() == 1)
     {
-        long index;
+        long index = CC_INVALID_INDEX;
         Vec2 point;
         
         point = this->getContainer()->convertTouchToNodeSpace(pTouch);
         
-        index = this->_indexFromOffset(point);
+        int column = 0;
+        for (; column < _dataSource->numberOfColumnsInCollectionView(this) && index != CC_INVALID_INDEX; column++)
+        {
+            index = this->_indexFromOffset(point, column);
+        }
         if (index == CC_INVALID_INDEX)
         {
             _touchedCell = nullptr;
         }
         else
         {
-            _touchedCell = this->_cellAtIndex(index);
+            HFIndexPath indexPath;
+            indexPath.column = column;
+            indexPath.row = (int)index;
+            _touchedCell = this->_cellAtIndex(indexPath);
         }
         
         if (_touchedCell && _delegate != nullptr)

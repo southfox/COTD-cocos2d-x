@@ -9,12 +9,13 @@
 class COTDImage;
 class CCActivityIndicator;
 
-using namespace cocos2d;
+USING_NS_CC;
+USING_NS_CC_EXT;
 
-class COTDMain : public cocos2d::Layer
+class COTDMain : public Layer
 {
 protected:
-    std::shared_ptr<cocos2d::extension::Downloader> _downloader;
+    std::shared_ptr<Downloader> _downloader;
     CCActivityIndicator *_activityIndicator;
     MenuItemLabel *_likeButton;
     MenuItemLabel *_gridButton;
@@ -43,22 +44,23 @@ private:
     void queryParse();
 
     // a selector callback
-    void menuLikeCallback(cocos2d::Ref* pSender);
-    void menuGridCallback(cocos2d::Ref* pSender);
+    void menuLikeCallback(Ref* pSender);
+    void menuGridCallback(Ref* pSender);
     void onExit();
-    void menuCloseCallback(cocos2d::Ref* pSender);
+    void menuCloseCallback(Ref* pSender);
 
-    void onError(const cocos2d::extension::Downloader::Error &error);
-    void onProgress(double total, double downloaded, const std::string &url, const std::string &customId);
-    void onSuccess(const std::string &srcUrl, const std::string &storagePath, const std::string &customId);
+    void download(const COTDImage *currentUserImage);
+    void onDownloadError(const Downloader::Error &error);
+    void onDownloadProgress(double total, double downloaded, const std::string &url, const std::string &customId);
+    void onDownloadSuccess(const std::string &srcUrl, const std::string &storagePath, const std::string &customId);
+
     void onUpdateImage(bool succeeded, std::strstream& error);
     void onLikeCurrentImage(bool succeeded, std::strstream& error);
     
-    void download(const COTDImage *currentUserImage);
 
 public:
     // there's no 'id' in cpp, so we recommend returning the class instance pointer
-    static cocos2d::Scene* createScene();
+    static Scene* createScene();
 
     // Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
     virtual bool init();

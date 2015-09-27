@@ -52,7 +52,7 @@ protected:
     HFView *_backgroundView;
     HFView *_selectedBackgroundView;
 
-    ssize_t _idx;
+    HFIndexPath _indexPath;
 
 public:
 //    CREATE_FUNC(HFCollectionViewCell);
@@ -71,8 +71,8 @@ public:
     HFView *backgroundView();
     HFView *selectedBackgroundView();
 
-    ssize_t getIdx() const;
-    void setIdx(ssize_t uIdx);
+    const HFIndexPath& getIndexPath() const;
+    void setIndexPath(const HFIndexPath& indexPath);
     void reset();
     
 };

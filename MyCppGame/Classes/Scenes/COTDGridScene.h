@@ -9,12 +9,14 @@
 
 
 USING_NS_CC;
+USING_NS_CC_EXT;
 using namespace std;
 
-using namespace cocos2d;
-
-class COTDGrid : public cocos2d::Layer, public HFCollectionViewDelegate, public HFCollectionViewDataSource
+class COTDGrid : public Layer, public HFCollectionViewDelegate, public HFCollectionViewDataSource
 {
+    
+protected:
+
 
 private:
     MenuItemLabel* createBackButton();
@@ -28,10 +30,11 @@ private:
                             const COTDImage::Vector& vector);
     
     // a selector callback
-    void menuBackCallback(cocos2d::Ref* pSender);
+    void menuBackCallback(Ref* pSender);
     
     // collection view
     void showCollection();
+
 
 public:
     // there's no 'id' in cpp, so we recommend returning the class instance pointer
@@ -44,19 +47,13 @@ public:
     
     CREATE_FUNC(COTDGrid);
 
-//    virtual int numberOfItemsInSection(HFCollectionView* collectionView, int section) = 0;
-
-    int numberOfItemsInSection(HFCollectionView* collectionView, int section) override;
-//    {
-//        return 10;
-//    }
-//
+    int numberOfRowsInColumn(HFCollectionView* collectionView, int column) override;
+    int numberOfColumnsInCollectionView(HFCollectionView * collectionView) override;
     HFCollectionViewCell* cellForItemAtIndexPath(HFCollectionView *collectionView, const HFIndexPath& indexPath) override;
+    void collectionCellTouched(HFCollectionView* collectionView, HFCollectionViewCell* cell) override;
 
-    void collectionCellTouched(HFCollectionView* collectionView, HFCollectionViewCell* cell) override
-    {
-        return;
-    }
+    Size cellSizeForCollection(HFCollectionView *collection) override;
+    
 
 };
 

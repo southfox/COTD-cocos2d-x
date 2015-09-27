@@ -61,15 +61,16 @@ HFView *HFCollectionViewCell::selectedBackgroundView()
 
 void HFCollectionViewCell::reset()
 {
-    _idx = CC_INVALID_INDEX;
+    _indexPath.row = (int)CC_INVALID_INDEX;
+    _indexPath.column = (int)CC_INVALID_INDEX;
 }
 
-ssize_t HFCollectionViewCell::getIdx() const
+const HFIndexPath& HFCollectionViewCell::getIndexPath() const
 {
-    return _idx;
+    return _indexPath;
 }
 
-void HFCollectionViewCell::setIdx(ssize_t idx)
+void HFCollectionViewCell::setIndexPath(const HFIndexPath& indexPath)
 {
-    _idx = idx;
+    _indexPath = indexPath;
 }
