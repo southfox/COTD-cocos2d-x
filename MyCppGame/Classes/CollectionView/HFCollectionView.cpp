@@ -141,9 +141,9 @@ void HFCollectionView::reloadData()
 
 void HFCollectionView::_updateContentSize()
 {
-    for (int c = 0; c < _dataSource->numberOfColumnsInCollectionView(this); c++)
+    for (int column = 0; column < _dataSource->numberOfColumnsInCollectionView(this); column++)
     {
-        this->_updateContentSize(c);
+        this->_updateContentSize(column);
     }
 }
 
@@ -188,29 +188,35 @@ void HFCollectionView::_updateContentSize(int column)
 
 void HFCollectionView::_updateCellPositions()
 {
-    for (int c = 0; c < _dataSource->numberOfColumnsInCollectionView(this); c++)
+    long maxRows = 0;
+    for (int column = 0; column < _dataSource->numberOfColumnsInCollectionView(this); column++)
     {
-        long cellsCount = _dataSource->numberOfRowsInColumn(this, c);
+        maxRows = MAX(maxRows, _dataSource->numberOfRowsInColumn(this, column));
+    }
+    long cellsCount = maxRows * _dataSource->numberOfColumnsInCollectionView(this);
+    
+    for (int column = 0; column < _dataSource->numberOfColumnsInCollectionView(this); column++)
+    {
         _vCellsPositions.resize(cellsCount + 1, 0.0);
         
         if (cellsCount > 0)
         {
             float currentPos = 0;
             Size cellSize;
-            for (int i = 0; i < cellsCount; i++)
+            for (int row = 0; row < cellsCount; row++)
             {
-                _vCellsPositions[i] = currentPos;
+                _vCellsPositions[row] = currentPos;
                 HFIndexPath indexPath;
-                indexPath.column = c;
-                indexPath.row = (int)i;
+                indexPath.column = column;
+                indexPath.row = (int)row;
                 cellSize = _dataSource->collectionCellSizeForIndex(this, indexPath);
                 switch (this->getDirection())
                 {
                     case Direction::HORIZONTAL:
-                        currentPos += cellSize.width * (c+1);
+                        currentPos += cellSize.width * (column+1);
                         break;
                     default:
-                        currentPos += cellSize.height * (c+1);
+                        currentPos += cellSize.height * (column+1);
                         break;
                 }
             }
